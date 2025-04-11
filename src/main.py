@@ -7,7 +7,7 @@ import streamlit as st
 
 
 #Using streamlit to make visualizations
-st.title("DUmbass capstone")
+st.title("capstone")
 
 data_directory = st.sidebar.text_input(
     "Data Directory",
