@@ -1,4 +1,5 @@
 # Importing the Pinecone library
+import pickle
 from pinecone import Pinecone
 from pinecone import ServerlessSpec
 import matplotlib.pyplot as plt
@@ -6,22 +7,41 @@ import seaborn as sns
 from wordcloud import WordCloud
 import pandas as pd
 import time
+import numpy as np
 from collections import Counter
 from glob import glob
 import os
+from dotenv import load_dotenv
+from pathlib import Path
+import sys
 
-from ..preprocessing.load_label import load_labeled_dataset
+from src.preprocessing.load_label import load_labeled_dataset
+from src.preprocessing.cleaning_data import clean_text
 
+# from ..preprocessing.load_label import load_labeled_dataset
+
+load_dotenv()
+
+api_key_ind = os.getenv('PINECONE_API_KEY')
+environment = os.getenv("PINECONE_ENVIRONMENT")
+# index_name = os.getenv('PINECONE_INDEX')
 #Location where the data set is at
-data_directory = r"C:\Users\andre\Desktop\Yaren's Stuff\DataScience\Hitachi_1\dataset\20_newsgroup"
+data_directory = r"C:\Users\yaren\Desktop\School\499_Data_Capstone\Hitachi_1\dataset\20_newsgroup"
 
 #Autodetecting csv files
 def find_csv(dir, pattern="*.csv"):
+    print(f"Searching in directory: {dir}")
     files = glob(os.path.join(dir, pattern))
     if files:
+        print(f"Files: {files}")
         return files[0]
     else:
+        print("No files were found")
         return None
+
+#cleaning function
+def clean(df):
+    return clean_text(df.copy(), text_column="text", lemmatize=False)
 
 # Function to initialize Pinecone connection
 def initialize_pinecone(api_key):
@@ -45,7 +65,7 @@ def create_index(pc):
             metric="cosine",
             spec=ServerlessSpec(
                 cloud="aws",
-                region="us-east-1"
+                region=environment
             )
         )
         print(f"Index {index_name} created successfully.")
@@ -54,17 +74,20 @@ def create_index(pc):
 
 # Function to send data in batches with delay
 def send_in_batches(pc, data, batch_size=96, delay=5):
+    all_embeddings = []
     for i in range(0, len(data), batch_size):
         batch = data[i:i + batch_size]
 
         embeddings = pc.inference.embed(
             model="multilingual-e5-large",
-            inputs=[d['text'] for d in batch],
+            inputs=[str(d['text_clean']) for d in batch],
             parameters={"input_type": "passage", "truncate": "END"}
         )
-        print(embeddings[0])  # Example print, you can process it differently here
-        time.sleep(delay)
 
+        all_embeddings.extend(embeddings)
+        print(f"✅ Embedded batch {i//batch_size + 1}/{(len(data) + batch_size - 1) // batch_size}")
+        time.sleep(delay)
+    return all_embeddings
 
 # Function to process and insert vectors into Pinecone
 def process_and_insert_vectors(pc, index_name, data, embeddings):
@@ -76,6 +99,7 @@ def process_and_insert_vectors(pc, index_name, data, embeddings):
             "values": e['values'],
             "metadata": {
                 'text': d['text'],
+                'clean_text': d['clean_text'],
                 'category': d.get('category')
             }
 
@@ -127,101 +151,127 @@ def query_index(pc, index_name, query):
     print(results)
     return results
 
-def vis(results):
-    matches = results['matches']
-    df = pd.DataFrame([{
-        'id': match['id'],
-        'score': match['score'],
-        'text': match['metadata']['text']
-    } for match in matches])
+# def vis(results):
+#     matches = results['matches']
+#     df = pd.DataFrame([{
+#         'id': match['id'],
+#         'score': match['score'],
+#         'text': match['metadata']['text']
+#     } for match in matches])
 
-    # --- Bar Chart of Similarity Scores by ID ---
-    plt.figure(figsize=(10, 6))
-    sns.barplot(x='id', y='score', data=df, palette='coolwarm', hue='id', legend=False)
-    plt.title('Similarity Scores by Match ID')
-    plt.xlabel('Vector ID')
-    plt.ylabel('Similarity Score')
-    plt.ylim(0.75, 1.0)
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
+#     # --- Bar Chart of Similarity Scores by ID ---
+#     plt.figure(figsize=(10, 6))
+#     sns.barplot(x='id', y='score', data=df, palette='coolwarm', hue='id', legend=False)
+#     plt.title('Similarity Scores by Match ID')
+#     plt.xlabel('Vector ID')
+#     plt.ylabel('Similarity Score')
+#     plt.ylim(0.75, 1.0)
+#     plt.grid(True)
+#     plt.tight_layout()
+#     plt.show()
 
-    # --- Histogram of Score Distribution ---
-    plt.figure(figsize=(8, 5))
-    sns.histplot(df['score'], bins=10, kde=True, color='skyblue')
-    plt.title('Distribution of Similarity Scores')
-    plt.xlabel('Score')
-    plt.ylabel('Frequency')
-    plt.tight_layout()
-    plt.show()
+#     # --- Histogram of Score Distribution ---
+#     plt.figure(figsize=(8, 5))
+#     sns.histplot(df['score'], bins=10, kde=True, color='skyblue')
+#     plt.title('Distribution of Similarity Scores')
+#     plt.xlabel('Score')
+#     plt.ylabel('Frequency')
+#     plt.tight_layout()
+#     plt.show()
 
-    # --- Scatter Plot of Scores ---
-    plt.figure(figsize=(10, 6))
-    plt.scatter(range(len(df)), df['score'], color='darkred')
-    plt.title('Scatter Plot of Similarity Scores')
-    plt.xlabel('Match Index')
-    plt.ylabel('Score')
-    plt.xticks(range(len(df)), df['id'], rotation=45)
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
+#     # --- Scatter Plot of Scores ---
+#     plt.figure(figsize=(10, 6))
+#     plt.scatter(range(len(df)), df['score'], color='darkred')
+#     plt.title('Scatter Plot of Similarity Scores')
+#     plt.xlabel('Match Index')
+#     plt.ylabel('Score')
+#     plt.xticks(range(len(df)), df['id'], rotation=45)
+#     plt.grid(True)
+#     plt.tight_layout()
+#     plt.show()
 
-    # --- Word Cloud from Metadata Text ---
-    combined_text = " ".join(df['text'].tolist())
-    wordcloud = WordCloud(width=1000, height=500, background_color='white', colormap='plasma').generate(combined_text)
+#     # --- Word Cloud from Metadata Text ---
+#     combined_text = " ".join(df['text'].tolist())
+#     wordcloud = WordCloud(width=1000, height=500, background_color='white', colormap='plasma').generate(combined_text)
 
-    plt.figure(figsize=(15, 7))
-    plt.imshow(wordcloud, interpolation='bilinear')
-    plt.axis('off')
-    plt.title('Word Cloud of Metadata Text')
-    plt.show()
+#     plt.figure(figsize=(15, 7))
+#     plt.imshow(wordcloud, interpolation='bilinear')
+#     plt.axis('off')
+#     plt.title('Word Cloud of Metadata Text')
+#     plt.show()
 
 # Main function for user interaction
 def main():
 
-    default_data_directory = os.path.join(os.getcwd(), "dataset")
-    default_data_directory = os.path.join(default_data_directory, "csv")
-
-    api_key = input("Enter your Pinecone API key: ")
+    api_key = api_key_ind
     pc = initialize_pinecone(api_key)
 
     print("Creating Pinecone index...")
     index_name = create_index(pc)
 
-    # Initialize data_from_df with your data
-    # file_path = input("Enter the path to your CSV file: ")
+    #loading data directory and making a Dataframe
+    default_data_directory = Path(__file__).resolve().parent.parent.parent
+    cleaned_csv_path = default_data_directory / "dataset" / "csv" / "cleaned.csv"
+    embeddings_path = default_data_directory / "dataset" / "csv" / "embeddings.npy"
+    metadata_path = default_data_directory / "dataset" / "csv" / "metadata.pkl"
 
-    file_path = find_csv(default_data_directory)
-
-    if file_path:
-        print(f"Automatically found CSV file: {file_path}")
-        df = pd.read_csv(file_path)
+    if cleaned_csv_path.exists():
+        print("✅ Using cached cleaned.csv")
+        df_clean = pd.read_csv(cleaned_csv_path)
     else:
-        print("Error")
+        dir = default_data_directory / "dataset" / "20_newsgroup"
+        df, category_index = load_labeled_dataset(dir)
+        #clean the text
+        df_clean = clean(df)
+        df_clean.to_csv(cleaned_csv_path, index=False)
+        
+
+    print(f"Loaded **{len(df_clean)}** documents")
 
     # Ensure that the CSV file has 'id' and 'text' columns
-    if 'id' not in df.columns or 'text' not in df.columns:
+    if 'id' not in df_clean.columns or 'text' not in df_clean.columns or 'text_clean' not in df_clean.columns:
         print("CSV file must contain 'id' and 'text' columns.")
         return
 
-    df['id'] = df['id'].astype(str)
     # Prepare data from the CSV file
-    data_from_df = df[['id', 'text', 'category']].to_dict(orient='records')
+    df_clean['id'] = df_clean['id'].astype(str)
+    df_clean['text_clean'] = df_clean['text_clean'].fillna("").astype(str)
+    data_from_df = df_clean[['id', 'text', 'category', 'text_clean']].to_dict(orient='records')
 
-    send_in_batches(pc, data_from_df, batch_size=96, delay=5)
+    if embeddings_path.exists() and metadata_path.exists():
+        print("✅ Loaded cached embeddings")
+        embeddings = np.load(embeddings_path, allow_pickle=True)
+        with open(metadata_path, 'rb') as f:
+            data_from_df = pickle.load(f)
+    else:
+        print("🧠 Sending data in batches...")
+        embeddings = send_in_batches(pc, data_from_df, batch_size=96, delay=5)
+        print("✅ Finished embedding in batches. Caching results")
+        np.save(embeddings_path, embeddings)
+        with open(metadata_path, 'wb') as f:
+            pickle.dump(data_from_df, f)
+
 
     # Wait until the index is ready
-    while not pc.describe_index(index_name).status['ready']:
-        time.sleep(1)
+    stats = pc.describe_index(index_name).namespaces
+    vector_count = stats.get("ns1", {}).get("vector_count", 0) if stats else 0
+
+    if vector_count > 0:
+        print("📦 Index already populated. Skipping upload.")
+    else:
+        print("📤Inserting vectors into Pinecone...")
+        process_and_insert_vectors(pc, index_name, data_from_df, embeddings)
+
+    
+    # while not pc.describe_index(index_name).status['ready']:
+    #     time.sleep(1)
 
     # Insert vectors
-    print("Inserting vectors into Pinecone...")
-    embeddings = pc.inference.embed(
-        model="multilingual-e5-large",
-        inputs=[d['text'] for d in data_from_df],
-        parameters={"input_type": "passage", "truncate": "END"}
-    )
-    process_and_insert_vectors(pc, index_name, data_from_df, embeddings)
+    # embeddings = pc.inference.embed(
+    #     model="multilingual-e5-large",
+    #     inputs=[d['text_clean'] for d in data_from_df],
+    #     parameters={"input_type": "passage", "truncate": "END"}
+    # )
 
     # # User interaction for querying
     # query = input("Enter a query for similarity search: ")
@@ -229,9 +279,18 @@ def main():
     # vis(results)
 
     # Now, to classify a new article:
-    article = input("Enter an article to classify: ")
-    predicted_category, query_results = classify_article(pc, index_name, article, top_k=5)
-    print("Predicted Category:", predicted_category)
+    while True:
+        article = input("Please input any article of your choice to classify (or type exit to discontinue): ")
+        if article.lower() == "exit":
+            break
+        predicted_category, query_results = classify_article(pc, index_name, article, top_k=5)
+        if predicted_category:
+            print(f"Your article is about: **{predicted_category}**")
+            print("Similarity scores from retrived vectors:")
+            for match in query_results['matches']:
+                print(f"-ID: {match['id']}, Score: {match['score']:.3f}, Category: {match['metadata'].get('category')}")
+        else:
+            print("❌ Could not determine a category. Try with a more descriptive article.")
 
 
 if __name__ == '__main__':
