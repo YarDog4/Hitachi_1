@@ -1,0 +1,30 @@
+# Ignore Python cache and virtual environments
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.env
+.venv/
+venv/
+
+# VSCode + Mac system junk
+.vscode/
+.DS_Store
+
+# Ignore large or generated files
+dataset/csv/embeddings.npy
+dataset/csv/metadata.pkl
+dataset/csv/test_embeddings.npy
+dataset/csv/test_metadata.pkl
+*.npy
+*.pkl
+*.csv
+# Ignore log files
+*.log
+
+# Ignore Jupyter checkpoints if using notebooks
+.ipynb_checkpoints/

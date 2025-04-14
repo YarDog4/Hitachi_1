@@ -7,6 +7,7 @@ import seaborn as sns
 from wordcloud import WordCloud
 import pandas as pd
 import time
+import random
 import numpy as np
 from collections import Counter
 from glob import glob
@@ -14,11 +15,11 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from src.preprocessing.load_label import load_labeled_dataset
 from src.preprocessing.cleaning_data import clean_text
 
-# from ..preprocessing.load_label import load_labeled_dataset
 
 load_dotenv()
 
@@ -71,40 +72,64 @@ def create_index(pc):
         print(f"Index {index_name} created successfully.")
     return index_name
 
+def embed_batch(pc, batch, attempt=1, max_attempts=5):
+    try:
+        return pc.inference.embed(
+                model="multilingual-e5-large",
+                inputs=[str(d['text_clean']) for d in batch],
+                parameters={"input_type": "passage", "truncate": "END"}
+            )
+    except Exception as e:
+        if "RESOURCE_EXHAUSTED" in str(e) and attempt < max_attempts:
+            wait = 60 + random.uniform(1, 10)  # wait 60-70s
+            print(f"🚧 Rate limit hit. Retrying in {wait:.1f}s (Attempt {attempt}/{max_attempts})")
+            time.sleep(wait)
+            return embed_batch(pc, batch, attempt + 1)
+        else:
+            raise e
 
-# Function to send data in batches with delay
-def send_in_batches(pc, data, batch_size=96, delay=5):
+def send_in_batches_parallel(pc, data, batch_size=96, max_workers=2, delay=2):
     all_embeddings = []
-    for i in range(0, len(data), batch_size):
-        batch = data[i:i + batch_size]
+    batches = [data[i:i + batch_size] for i in range(0, len(data), batch_size)]
+    print(f"🚀 Embedding {len(batches)} batches in parallel with {max_workers} threads...")
 
-        embeddings = pc.inference.embed(
-            model="multilingual-e5-large",
-            inputs=[str(d['text_clean']) for d in batch],
-            parameters={"input_type": "passage", "truncate": "END"}
-        )
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {executor.submit(embed_batch, pc, batch): idx for idx, batch in enumerate(batches)}
 
-        all_embeddings.extend(embeddings)
-        print(f"✅ Embedded batch {i//batch_size + 1}/{(len(data) + batch_size - 1) // batch_size}")
-        time.sleep(delay)
+        for future in as_completed(futures):
+            idx = futures[future]
+            try:
+                result = future.result()
+                all_embeddings.extend(result)
+                print(f"✅ Batch {idx + 1}/{len(batches)} embedded.")
+                time.sleep(delay)
+            except Exception as e:
+                print(f"❌ Batch {idx + 1} failed: {e}")
+
     return all_embeddings
 
 # Function to process and insert vectors into Pinecone
-def process_and_insert_vectors(pc, index_name, data, embeddings):
+def process_and_insert_vectors(pc, index_name, data, embeddings, batch_size=100):
     index = pc.Index(index_name)
     vectors = []
     for d, e in zip(data, embeddings):
         vectors.append({
             "id": d['id'],
-            "values": e['values'],
+            "values": e,
             "metadata": {
-                'text': d['text'],
-                'clean_text': d['clean_text'],
+                # 'text': d['text'],
+                # 'text_clean': d['text_clean'],
                 'category': d.get('category')
             }
 
         })
-    index.upsert(vectors=vectors, namespace="ns1")
+    
+    for i in range(0, len(vectors), batch_size):
+        batch = vectors[i:i + batch_size]
+        index.upsert(vectors=batch, namespace="ns1")
+        print(f"📤 Uploaded batch {i // batch_size + 1}/{(len(vectors) + batch_size - 1) // batch_size}")
+
+    
     print(index.describe_index_stats())
 
 #classifying articles
@@ -123,15 +148,21 @@ def classify_article(pc, index_name, article, top_k=5):
         include_metadata=True
     )
 
+    matches = results['matches']
+    if not matches:
+        return None, results
+    
     categories = [match['metadata'].get('category') for match in results['matches']
                   if 'category' in match['metadata']]
     
-    if not categories:
-        print("No category metadata found.")
-        return None, results
+    if categories:
+        most_common, count = Counter(categories).most_common(1)[0]
+        return most_common, results
+    else:
+        fallback = matches[0]
+        fallback_category = fallback['metadata'].get('category', "Unknown")
+        return f"Most similar to: {fallback_category}", results
     
-    most_common, count = Counter(categories).most_common(1)[0]
-    return most_common, results
 
 # Function for querying the index
 def query_index(pc, index_name, query):
@@ -237,17 +268,23 @@ def main():
     df_clean['id'] = df_clean['id'].astype(str)
     df_clean['text_clean'] = df_clean['text_clean'].fillna("").astype(str)
     data_from_df = df_clean[['id', 'text', 'category', 'text_clean']].to_dict(orient='records')
+    
+    ##########################################################
+    # data_subset = data_from_df[:960] #for testing purposes
+    ##########################################################
 
     if embeddings_path.exists() and metadata_path.exists():
         print("✅ Loaded cached embeddings")
-        embeddings = np.load(embeddings_path, allow_pickle=True)
+        embedding_vectors = np.load(embeddings_path, allow_pickle=True)
         with open(metadata_path, 'rb') as f:
             data_from_df = pickle.load(f)
     else:
         print("🧠 Sending data in batches...")
-        embeddings = send_in_batches(pc, data_from_df, batch_size=96, delay=5)
+        embeddings = send_in_batches_parallel(pc, data_from_df, batch_size=96, max_workers=4)
         print("✅ Finished embedding in batches. Caching results")
-        np.save(embeddings_path, embeddings)
+        embedding_vectors = np.array([e['values'] for e in embeddings])
+        
+        np.save(embeddings_path, embedding_vectors)
         with open(metadata_path, 'wb') as f:
             pickle.dump(data_from_df, f)
 
@@ -260,38 +297,27 @@ def main():
         print("📦 Index already populated. Skipping upload.")
     else:
         print("📤Inserting vectors into Pinecone...")
-        process_and_insert_vectors(pc, index_name, data_from_df, embeddings)
-
-    
-    # while not pc.describe_index(index_name).status['ready']:
-    #     time.sleep(1)
-
-    # Insert vectors
-    # embeddings = pc.inference.embed(
-    #     model="multilingual-e5-large",
-    #     inputs=[d['text_clean'] for d in data_from_df],
-    #     parameters={"input_type": "passage", "truncate": "END"}
-    # )
-
-    # # User interaction for querying
-    # query = input("Enter a query for similarity search: ")
-    # results = query_index(pc, index_name, query)
-    # vis(results)
+        process_and_insert_vectors(pc, index_name, data_from_df, embedding_vectors, 100)
 
     # Now, to classify a new article:
     while True:
         article = input("Please input any article of your choice to classify (or type exit to discontinue): ")
         if article.lower() == "exit":
             break
-        predicted_category, query_results = classify_article(pc, index_name, article, top_k=5)
+        predicted_category, query_results = classify_article(pc, index_name, article, top_k=10)
         if predicted_category:
             print(f"Your article is about: **{predicted_category}**")
             print("Similarity scores from retrived vectors:")
             for match in query_results['matches']:
+                if match['score'] < 0.75:
+                    print("⚠️ Warning: Low similarity score — result may be unreliable.")
+                    break
                 print(f"-ID: {match['id']}, Score: {match['score']:.3f}, Category: {match['metadata'].get('category')}")
         else:
             print("❌ Could not determine a category. Try with a more descriptive article.")
-
+            for match in query_results['matches']:
+                print(f"-ID: {match['id']}, Score: {match['score']:.3f}, Category: {match['metadata'].get('category')}")
+                
 
 if __name__ == '__main__':
     main()
