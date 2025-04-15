@@ -1,0 +1,93 @@
+from collections import Counter
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+import pandas as pd
+import networkx as nx
+from sklearn.manifold import TSNE
+
+# --- Visualizations for Pinecone Matches ---
+def plot_similarity_heatmap(matches):
+    scores = np.array([match['score'] for match in matches])
+    data = scores.reshape(1, -1)
+    plt.figure(figsize=(10, 2))
+    sns.heatmap(data, cmap="YlGnBu", annot=True, cbar=True, xticklabels=[m['id'] for m in matches])
+    plt.title("Similarity Scores Heatmap")
+    plt.yticks([])
+    plt.show()
+
+def plot_top_categories(matches):
+    categories = [match['metadata']['category'] for match in matches]
+    counter = Counter(categories)
+    plt.bar(counter.keys(), counter.values())
+    plt.title("Top Categories among Matches")
+    plt.xlabel("Category")
+    plt.ylabel("Frequency")
+    plt.show()
+
+def plot_similarity_network(matches, threshold=0.5):
+    G = nx.Graph()
+    for match in matches:
+        G.add_node(match['id'], category=match['metadata']['category'])
+    for i in range(len(matches)):
+        for j in range(i + 1, len(matches)):
+            sim = np.dot(matches[i]['values'], matches[j]['values']) / (
+                np.linalg.norm(matches[i]['values']) * np.linalg.norm(matches[j]['values']))
+            if sim > threshold:
+                G.add_edge(matches[i]['id'], matches[j]['id'], weight=sim)
+    pos = nx.spring_layout(G)
+    nx.draw(G, pos, with_labels=True, node_color='lightblue', edge_color='gray')
+    plt.title("Similarity Network Graph")
+    plt.show()
+
+def plot_tsne_embeddings(matches):
+    embeddings = np.array([match['values'] for match in matches])
+    tsne = TSNE(n_components=2, random_state=42, perplexity=5)
+    reduced = tsne.fit_transform(embeddings)
+    categories = [match['metadata']['category'] for match in matches]
+    df = pd.DataFrame({'x': reduced[:, 0], 'y': reduced[:, 1], 'category': categories})
+    sns.scatterplot(data=df, x='x', y='y', hue='category')
+    plt.title("t-SNE of Embeddings")
+    plt.show()
+
+def plot_pie_chart(matches):
+    categories = [match['metadata']['category'] for match in matches]
+    counter = Counter(categories)
+    plt.pie(counter.values(), labels=counter.keys(), autopct='%1.1f%%')
+    plt.title("Metadata Category Distribution")
+    plt.show()
+
+def plot_embedding_time():
+    times = np.random.uniform(0.1, 1.0, 20)
+    plt.plot(times, marker='o')
+    plt.title("Simulated Embedding Time per Batch")
+    plt.xlabel("Batch Index")
+    plt.ylabel("Time (s)")
+    plt.show()
+
+def plot_cumulative_similarity(matches):
+    scores = sorted([match['score'] for match in matches], reverse=True)
+    cumulative = np.cumsum(scores)
+    plt.plot(cumulative, marker='o')
+    plt.title("Cumulative Similarity Scores")
+    plt.xlabel("Top-N Matches")
+    plt.ylabel("Cumulative Score")
+    plt.show()
+
+def plot_score_vs_text_length(matches):
+    scores = [match['score'] for match in matches]
+    lengths = [len(match['metadata']['text']) for match in matches]
+    plt.scatter(lengths, scores)
+    plt.title("Score vs Text Length")
+    plt.xlabel("Text Length")
+    plt.ylabel("Similarity Score")
+    plt.show()
+
+def plot_embedding_statistics(matches):
+    vectors = np.array([match['values'] for match in matches])
+    means = np.mean(vectors, axis=1)
+    plt.hist(means, bins=10)
+    plt.title("Distribution of Embedding Vector Means")
+    plt.xlabel("Mean Value")
+    plt.ylabel("Frequency")
+    plt.show()
