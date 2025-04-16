@@ -23,7 +23,6 @@ from src.preprocessing.cleaning_data import clean_text
 
 load_dotenv()
 
-api_key_ind = os.getenv('PINECONE_API_KEY')
 environment = os.getenv("PINECONE_ENVIRONMENT")
 # index_name = os.getenv('PINECONE_INDEX')
 #Location where the data set is at
@@ -51,7 +50,7 @@ def initialize_pinecone(api_key):
 
 # Function to create Pinecone index
 def create_index(pc):
-    index_name = input("Enter a name for the Pinecone index: ").lower()
+    index_name = os.getenv('PINECONE_INDEX').lower()
 
     # Check if the index already exists
     try:
@@ -182,60 +181,11 @@ def query_index(pc, index_name, query):
     print(results)
     return results
 
-# def vis(results):
-#     matches = results['matches']
-#     df = pd.DataFrame([{
-#         'id': match['id'],
-#         'score': match['score'],
-#         'text': match['metadata']['text']
-#     } for match in matches])
-
-#     # --- Bar Chart of Similarity Scores by ID ---
-#     plt.figure(figsize=(10, 6))
-#     sns.barplot(x='id', y='score', data=df, palette='coolwarm', hue='id', legend=False)
-#     plt.title('Similarity Scores by Match ID')
-#     plt.xlabel('Vector ID')
-#     plt.ylabel('Similarity Score')
-#     plt.ylim(0.75, 1.0)
-#     plt.grid(True)
-#     plt.tight_layout()
-#     plt.show()
-
-#     # --- Histogram of Score Distribution ---
-#     plt.figure(figsize=(8, 5))
-#     sns.histplot(df['score'], bins=10, kde=True, color='skyblue')
-#     plt.title('Distribution of Similarity Scores')
-#     plt.xlabel('Score')
-#     plt.ylabel('Frequency')
-#     plt.tight_layout()
-#     plt.show()
-
-#     # --- Scatter Plot of Scores ---
-#     plt.figure(figsize=(10, 6))
-#     plt.scatter(range(len(df)), df['score'], color='darkred')
-#     plt.title('Scatter Plot of Similarity Scores')
-#     plt.xlabel('Match Index')
-#     plt.ylabel('Score')
-#     plt.xticks(range(len(df)), df['id'], rotation=45)
-#     plt.grid(True)
-#     plt.tight_layout()
-#     plt.show()
-
-#     # --- Word Cloud from Metadata Text ---
-#     combined_text = " ".join(df['text'].tolist())
-#     wordcloud = WordCloud(width=1000, height=500, background_color='white', colormap='plasma').generate(combined_text)
-
-#     plt.figure(figsize=(15, 7))
-#     plt.imshow(wordcloud, interpolation='bilinear')
-#     plt.axis('off')
-#     plt.title('Word Cloud of Metadata Text')
-#     plt.show()
-
 # Main function for user interaction
-def main():
+def categorization_pipeline():
 
-    api_key = api_key_ind
-    pc = initialize_pinecone(api_key)
+    api_key_ind = os.getenv('PINECONE_API_KEY')
+    pc = initialize_pinecone(api_key_ind)
 
     print("Creating Pinecone index...")
     index_name = create_index(pc)
@@ -247,7 +197,7 @@ def main():
     metadata_path = default_data_directory / "dataset" / "csv" / "metadata.pkl"
 
     if cleaned_csv_path.exists():
-        print("✅ Using cached cleaned.csv")
+        #print("✅ Using cached cleaned.csv")
         df_clean = pd.read_csv(cleaned_csv_path)
     else:
         dir = default_data_directory / "dataset" / "20_newsgroup"
@@ -258,11 +208,6 @@ def main():
         
 
     print(f"Loaded **{len(df_clean)}** documents")
-
-    # Ensure that the CSV file has 'id' and 'text' columns
-    if 'id' not in df_clean.columns or 'text' not in df_clean.columns or 'text_clean' not in df_clean.columns:
-        print("CSV file must contain 'id' and 'text' columns.")
-        return
 
     # Prepare data from the CSV file
     df_clean['id'] = df_clean['id'].astype(str)
@@ -299,25 +244,9 @@ def main():
         print("📤Inserting vectors into Pinecone...")
         process_and_insert_vectors(pc, index_name, data_from_df, embedding_vectors, 100)
 
-    # Now, to classify a new article:
-    while True:
-        article = input("Please input any article of your choice to classify (or type exit to discontinue): ")
-        if article.lower() == "exit":
-            break
-        predicted_category, query_results = classify_article(pc, index_name, article, top_k=10)
-        if predicted_category:
-            print(f"Your article is about: **{predicted_category}**")
-            print("Similarity scores from retrived vectors:")
-            for match in query_results['matches']:
-                if match['score'] < 0.75:
-                    print("⚠️ Warning: Low similarity score — result may be unreliable.")
-                    break
-                print(f"-ID: {match['id']}, Score: {match['score']:.3f}, Category: {match['metadata'].get('category')}")
-        else:
-            print("❌ Could not determine a category. Try with a more descriptive article.")
-            for match in query_results['matches']:
-                print(f"-ID: {match['id']}, Score: {match['score']:.3f}, Category: {match['metadata'].get('category')}")
+    return pc, index_name
+    
                 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
