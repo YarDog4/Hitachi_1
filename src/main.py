@@ -23,9 +23,6 @@ import matplotlib.pyplot as plt
 import streamlit as st
 
 
-#Using streamlit to make visualizations
-st.title("capstone")
-
 data_directory = st.sidebar.text_input(
     "Data Directory",
     r"..\Hitachi_1\dataset\20_newsgroup"
@@ -39,7 +36,6 @@ def load_data(data_directory: str):
 if data_directory:
     #First load the dataset
     df, category_index = load_labeled_dataset(r"..\Hitachi_1\dataset\20_newsgroup")
-
     st.write(f"Loaded **{len(df)}** documents from **{len(category_index)}** categories")
     
     #Create some preprocessing graphs to display
