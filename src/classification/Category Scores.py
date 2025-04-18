@@ -12,6 +12,7 @@ from pinecone import ServerlessSpec
 import pandas as pd
 from google.colab import files
 import matplotlib.pyplot as plt
+import time
 
 def category_scores(text):
     pc = Pinecone(api_key="pcsk_2wP34Q_BMcTpsBMdLgVjxq5SrFidKYDnr9Xj2heFtv6iEKdVUnVsyv58XLXFpBT8rk2r2U")
