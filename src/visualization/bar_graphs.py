@@ -1,3 +1,6 @@
+import matplotlib.pyplot as plt
+from collections import Counter
+
 def plot_top_categories(matches):
     # Define category name mapping
     category_names = {
@@ -33,7 +36,7 @@ def plot_top_categories(matches):
 
     # Plot
     fig, ax = plt.subplots()
-    ax.bar(named_categories, frequencies)
+    ax.bar(named_categories, frequencies, color="orange")
     ax.set_title("Top Categories among Matches")
     ax.set_xlabel("Category")
     ax.set_ylabel("Frequency")

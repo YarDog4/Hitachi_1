@@ -20,6 +20,25 @@ def plot_vector_space_3d(category_vectors_dict, user_vector):
     all_vectors.append(user_vector)
     labels.append("User Input")
 
+    # 🛡 Validation
+    if len(all_vectors) == 0:
+        print("⚠️ No vectors to plot.")
+        return
+
+    base_len = len(all_vectors[0])
+
+    if base_len == 0:
+        print("⚠️ Vectors have zero dimension. Cannot plot.")
+        return
+
+    valid_pairs = [(vec, lbl) for vec, lbl in zip(all_vectors, labels) if len(vec) == base_len]
+
+    if len(valid_pairs) < 2:
+        print("⚠️ Not enough valid vectors for PCA after filtering mismatched dimensions.")
+        return
+
+    all_vectors, labels = zip(*valid_pairs)
+
     # Reduce to 3D with PCA
     pca = PCA(n_components=3)
     reduced = pca.fit_transform(np.array(all_vectors))

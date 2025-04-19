@@ -120,7 +120,6 @@ def process_and_insert_vectors(pc, index_name, data, embeddings, batch_size=100)
                 # 'text_clean': d['text_clean'],
                 'category': d.get('category')
             }
-
         })
     
     for i in range(0, len(vectors), batch_size):
@@ -128,7 +127,6 @@ def process_and_insert_vectors(pc, index_name, data, embeddings, batch_size=100)
         index.upsert(vectors=batch, namespace="ns1")
         print(f"📤 Uploaded batch {i // batch_size + 1}/{(len(vectors) + batch_size - 1) // batch_size}")
 
-    
     print(index.describe_index_stats())
 
 #classifying articles
@@ -247,6 +245,3 @@ def categorization_pipeline():
     return pc, index_name
     
                 
-
-# if __name__ == '__main__':
-#     main()

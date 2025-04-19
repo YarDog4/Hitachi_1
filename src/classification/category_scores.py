@@ -10,7 +10,7 @@ Original file is located at
 from pinecone import Pinecone
 from pinecone import ServerlessSpec
 import pandas as pd
-from google.colab import files
+# from google.colab import files
 import matplotlib.pyplot as plt
 import time
 
@@ -96,13 +96,14 @@ def category_scores(text):
     df_sorted = df_scores.iloc[:, :].sort_values(by=0, axis=1, ascending=False)
 
     # Create bar plot
-    plt.figure(figsize=(16, 6))
-    plt.bar(df_sorted.columns, df_sorted.iloc[0, :])
-    plt.ylim(0.7, 0.9)
-    plt.xlabel("Categories")
-    plt.ylabel("Scores")
-    plt.title("Sorted Scores")
-    plt.xticks(rotation=90)
-    plt.tight_layout()
-    plt.show()
+    fig, ax = plt.subplots(figsize=(16, 6))
+    ax.bar(df_sorted.columns, df_sorted.iloc[0, :], color="orange")
+    ax.set_ylim(0.7, 0.9)
+    ax.set_xlabel("Categories")
+    ax.set_ylabel("Scores")
+    ax.set_title("Sorted Scores")
+    ax.set_xticklabels(df_sorted.columns, rotation=90)
+    fig.tight_layout()
+    return fig
+    # plt.show()
 
