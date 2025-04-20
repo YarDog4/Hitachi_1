@@ -81,10 +81,9 @@ This application was developed using Python 3.13, so Python 3.13 is recommended 
 
 # How to run
 Assuming you have the repository cloned and Python 3.13 installed, go into your home directory (should be Hitachi_1) and run:
-```
-bash
-python -m streamlit run Home.py
-```
+    ```bash
+    python -m streamlit run Home.py
+    ```
 
 # Additional Information
 When first running the application, it may take a little bit to load the visualizations and features, depending on how big your dataset is. The defualt dataset this application uses is around 20,000 thousand files, so Pinecone vectorizing and embeddings take a long time. To combat this heavy overhead, this application caches your Pinecone vector embeddings and metadata. These files will be located in the ```../dataset/csv``` directory.
