@@ -1,0 +1,15 @@
+datasets>=3.5.0
+kagglehub>=0.3.11
+matplotlib>=3.10.1
+nltk>=3.9.1
+numpy>=2.2.5
+pandas>=2.2.3
+pinecone>=6.0.2
+plotly>=6.0.1
+python-dotenv>=1.1.0
+scikit_learn>=1.6.1
+seaborn>=0.13.2
+streamlit>=1.44.1
+torch>=2.6.0
+transformers>=4.51.2
+wordcloud>=1.9.4

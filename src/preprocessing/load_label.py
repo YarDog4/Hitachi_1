@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-data_directory = r"C:\Users\yaren\Desktop\School\499_Data_Capstone\Hitachi_1\dataset\20_newsgroup"
+data_directory = os.getenv(r"DATASET_PATH")
 contents = os.listdir(data_directory)
 
 def load_labeled_dataset(data_directory: str):

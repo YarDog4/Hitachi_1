@@ -27,7 +27,7 @@ load_dotenv()
 environment = os.getenv("PINECONE_ENVIRONMENT")
 # index_name = os.getenv('PINECONE_INDEX')
 #Location where the data set is at
-data_directory = r"C:\Users\yaren\Desktop\School\499_Data_Capstone\Hitachi_1\dataset\20_newsgroup"
+data_directory = os.getenv(r"DATASET_PATH")
 
 #performing PCA
 def pca_vec(embedding_vectors):
