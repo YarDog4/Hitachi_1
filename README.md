@@ -81,6 +81,7 @@ This application was developed using Python 3.13, so Python 3.13 is recommended 
 
 # How to run
 Assuming you have the repository cloned and Python 3.13 installed, go into your home directory (should be Hitachi_1) and run:
+
     ```bash
     python -m streamlit run Home.py
     ```
