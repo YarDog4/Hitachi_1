@@ -7,10 +7,10 @@ Original file is located at
     https://colab.research.google.com/drive/1x1TNp9UXjyv9tKzyOYTCbWaZWXINyAiS
 """
 
+# Test comment
 from pinecone import Pinecone
 from pinecone import ServerlessSpec
 import pandas as pd
-# from google.colab import files
 import matplotlib.pyplot as plt
 import time
 
