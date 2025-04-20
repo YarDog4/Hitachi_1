@@ -1,0 +1,46 @@
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from sklearn.preprocessing import LabelEncoder
+from matplotlib.lines import Line2D
+import plotly.graph_objects as go
+import numpy as np
+
+def plot_3d_vectors(reduced_embeddings, labels, new_point=None):
+    label_encoder = LabelEncoder()
+    label_ids = label_encoder.fit_transform(labels)
+    categories = label_encoder.classes_
+
+    fig = go.Figure()
+
+    for i, category in enumerate(categories):
+        ind = np.where(label_ids == i)[0]
+        fig.add_trace(go.Scatter3d(
+            x=reduced_embeddings[ind, 0],
+            y=reduced_embeddings[ind, 1],
+            z=reduced_embeddings[ind, 2],
+            mode="markers",
+            marker=dict(size=4),
+            name=int(category)
+        ))
+
+    if new_point is not None:
+        fig.add_trace(go.Scatter3d(
+            x=[new_point[0]],
+            y=[new_point[1]],
+            z=[new_point[2]],
+            mode="markers",
+            marker=dict(size=10, color='black', symbol='square'),
+            name='New Article'
+        ))
+
+    fig.update_layout(
+        title="Interactive 3D PCA of Article Embeddings",
+        scene=dict(
+            xaxis_title='PCA 1',
+            yaxis_title='PCA 2',
+            zaxis_title='PCA 3'
+        ),
+        legend_title="Categories",
+        margin=dict(l=0, r=0, b=0, t=30)
+    )
+    return fig

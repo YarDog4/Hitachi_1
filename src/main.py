@@ -1,16 +1,9 @@
+#CAN BE DELETED SOON
 from preprocessing.load_label import load_labeled_dataset
 from preprocessing.cleaning_data import clean_text
 from visualization.avg_word_count import average_word_count
 from visualization.word_frequency import plotting_word_frequencies
-from visualization.matches import plot_similarity_heatmap
-from visualization.matches import plot_top_categories
-from visualization.matches import plot_similarity_network
-from visualization.matches import plot_tsne_embeddings
-from visualization.matches import plot_pie_chart
-from visualization.matches import plot_embedding_time
-from visualization.matches import plot_cumulative_similarity
-from visualization.matches import plot_score_vs_text_length
-from visualization.matches import plot_embedding_statistics
+
 
 import sys
 from pathlib import Path
@@ -80,7 +73,6 @@ st.dataframe(freq_df)
 
 st.header("Article Categorization")
 
-
 @st.cache_resource()
 def get_pinecone():
     return categorization_pipeline()
@@ -116,34 +108,6 @@ if st.button("Classify"):
                 break
 
             st.markdown(f"-Article ID: {match['id']}, Score: {match['score']:.3f}, Category: {category_string.upper()} ({raw_category})")
-
-        # if st.button('Generate Graphs'):
-        heatmap = plot_similarity_heatmap(query_results['matches'])
-        st.pyplot(heatmap)
-
-        top_categories = plot_top_categories(query_results['matches'])
-        st.pyplot(top_categories)
-
-        similarity_network = plot_similarity_network(query_results['matches'])
-        st.pyplot(similarity_network)
-
-        # tsne = plot_tsne_embeddings(query_results['matches'])
-        # st.pyplot(tsne)
-
-        pie_plot = plot_pie_chart(query_results['matches'])
-        st.pyplot(pie_plot)
-
-        embed = plot_embedding_time()
-        st.pyplot(embed)
-
-        cummulative_similarity = plot_cumulative_similarity(query_results['matches'])
-        st.pyplot(cummulative_similarity)
-
-        # score_vs_text = plot_score_vs_text_length(query_results['matches'])
-        # st.pyplot(score_vs_text)
-
-        # embed_stat = plot_embedding_statistics(query_results['matches'])
-        # st.pyplot(embed_stat)
 
     else:
         st.warning("Please enter text before pressing 'Classify'")

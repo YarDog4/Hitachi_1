@@ -16,6 +16,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from sklearn.decomposition import PCA
 
 from src.preprocessing.load_label import load_labeled_dataset
 from src.preprocessing.cleaning_data import clean_text
@@ -27,6 +28,12 @@ environment = os.getenv("PINECONE_ENVIRONMENT")
 # index_name = os.getenv('PINECONE_INDEX')
 #Location where the data set is at
 data_directory = r"C:\Users\yaren\Desktop\School\499_Data_Capstone\Hitachi_1\dataset\20_newsgroup"
+
+#performing PCA
+def pca_vec(embedding_vectors):
+    pca= PCA(n_components=3)
+    reduced_embedding = pca.fit_transform(embedding_vectors)
+    return reduced_embedding, pca
 
 #Autodetecting csv files
 def find_csv(dir, pattern="*.csv"):
@@ -221,16 +228,21 @@ def categorization_pipeline():
         embedding_vectors = np.load(embeddings_path, allow_pickle=True)
         with open(metadata_path, 'rb') as f:
             data_from_df = pickle.load(f)
+
     else:
         print("🧠 Sending data in batches...")
         embeddings = send_in_batches_parallel(pc, data_from_df, batch_size=96, max_workers=4)
         print("✅ Finished embedding in batches. Caching results")
-        embedding_vectors = np.array([e['values'] for e in embeddings])
         
+        embedding_vectors = np.array([e['values'] for e in embeddings])
+
         np.save(embeddings_path, embedding_vectors)
         with open(metadata_path, 'wb') as f:
             pickle.dump(data_from_df, f)
 
+    #need this for graphing
+    labels = [entry['category'] for entry in data_from_df]
+    reduced_embeddings, pca_model = pca_vec(embedding_vectors)
 
     # Wait until the index is ready
     stats = pc.describe_index(index_name).namespaces
@@ -242,6 +254,6 @@ def categorization_pipeline():
         print("📤Inserting vectors into Pinecone...")
         process_and_insert_vectors(pc, index_name, data_from_df, embedding_vectors, 100)
 
-    return pc, index_name
+    return pc, index_name, reduced_embeddings, labels, pca_model
     
                 
