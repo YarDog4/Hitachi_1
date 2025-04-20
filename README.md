@@ -59,7 +59,7 @@ This application was developed using Python 3.13, so Python 3.13 is recommended 
     ```
     #### macOS or Linux
      ```bash
-        pip install --upgrade && pip install -r requirements.txt
+    pip install --upgrade && pip install -r requirements.txt
     ```
 4. **Create a .env**
     In order to connect to Pinecone and use your data directories, you must create a .env that defines the environment variables this Python Application will use. It should have the following variables:
@@ -84,6 +84,7 @@ Assuming you have the repository cloned and Python 3.13 installed, go into your 
 
     ```bash
     python -m streamlit run Home.py
+
     ```
 
 # Additional Information
