@@ -84,7 +84,6 @@ Assuming you have the repository cloned and Python 3.13 installed, go into your 
 
     ```bash
     python -m streamlit run Home.py
-
     ```
 
 # Additional Information
