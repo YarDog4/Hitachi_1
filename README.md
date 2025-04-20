@@ -91,5 +91,6 @@ When first running the application, it may take a little bit to load the visuali
 
 When asking for an article to be categorized, for the most accurate experience, ensure your inputs are descriptive and well-formed, as very short or vague articles may return lower-quality matches. 
 
+The application is pretty intuitive, and there are descriptions for what everything does throughout the application. Additionally, there will be a video as an additional resource for users
 
 🌟We hope you enjoy our application!🌟
