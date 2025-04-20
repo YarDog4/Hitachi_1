@@ -7,15 +7,18 @@ Original file is located at
     https://colab.research.google.com/drive/1x1TNp9UXjyv9tKzyOYTCbWaZWXINyAiS
 """
 
-# Test comment
+# Importing what is needed to run the function
 from pinecone import Pinecone
 from pinecone import ServerlessSpec
 import pandas as pd
 import matplotlib.pyplot as plt
 import time
 
+# Establish the function category_scores that takes the text as the input
 def category_scores(text):
+    # Establish the key for pinecone
     pc = Pinecone(api_key="pcsk_2wP34Q_BMcTpsBMdLgVjxq5SrFidKYDnr9Xj2heFtv6iEKdVUnVsyv58XLXFpBT8rk2r2U")
+    # Establish the index name 
     index_name = "document--embeddings"
 
     # Delete and recreate index
@@ -33,9 +36,10 @@ def category_scores(text):
 
     index = pc.Index(index_name)
 
-    # Insert input text into Pinecone
+    # Insert input text into Pinecone, adding ID and Vec variables
     data = [{"id": "vec1", "text": text}]
     embeddings = pc.inference.embed(
+        # We will be using the multilingual e5 large model
         model="multilingual-e5-large",
         inputs=[text],
         parameters={"input_type": "passage", "truncate": "END"}
@@ -66,11 +70,14 @@ def category_scores(text):
             parameters={"input_type": "query"}
         )
 
+        # In case of an error on the query search, numbers were chosen through testing
         max_retries = 7
         retry_delay = 3
         attempt = 0
         score = 0.0
 
+        
+        # Embed the vector value as long as the max retry limit wasn't reached
         while attempt < max_retries:
             result = index.query(
                 namespace="ns1",
@@ -79,13 +86,17 @@ def category_scores(text):
                 include_values=False,
                 include_metadata=True
             )
+
+            # Save the value under variable score
             if result['matches']:
                 score = result['matches'][0]['score']
                 break
+            # Retry if unsuccessful 
             else:
                 attempt += 1
                 time.sleep(retry_delay)
 
+        # Append the score in scores 
         scores[category] = score
         time.sleep(10)
 
