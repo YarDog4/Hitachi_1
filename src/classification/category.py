@@ -30,8 +30,13 @@ environment = os.getenv("PINECONE_ENVIRONMENT")
 data_directory = os.getenv(r"DATASET_PATH")
 
 #performing PCA
-def pca_vec(embedding_vectors):
+def pca_3d_vec(embedding_vectors):
     pca= PCA(n_components=3)
+    reduced_embedding = pca.fit_transform(embedding_vectors)
+    return reduced_embedding, pca
+
+def pca_2d_vec(embedding_vectors):
+    pca= PCA(n_components=2)
     reduced_embedding = pca.fit_transform(embedding_vectors)
     return reduced_embedding, pca
 
@@ -242,7 +247,8 @@ def categorization_pipeline():
 
     #need this for graphing
     labels = [entry['category'] for entry in data_from_df]
-    reduced_embeddings, pca_model = pca_vec(embedding_vectors)
+    reduced_3d_embeddings, pca_3d_model = pca_3d_vec(embedding_vectors)
+    reduced_2d_embeddings, pca_2d_model = pca_2d_vec(embedding_vectors)
 
     # Wait until the index is ready
     stats = pc.describe_index(index_name).namespaces
@@ -254,6 +260,6 @@ def categorization_pipeline():
         print("📤Inserting vectors into Pinecone...")
         process_and_insert_vectors(pc, index_name, data_from_df, embedding_vectors, 100)
 
-    return pc, index_name, reduced_embeddings, labels, pca_model
+    return pc, index_name, reduced_3d_embeddings, pca_3d_model, reduced_2d_embeddings, pca_2d_model, labels
     
                 

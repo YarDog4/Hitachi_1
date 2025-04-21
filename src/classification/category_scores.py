@@ -13,22 +13,26 @@ from pinecone import ServerlessSpec
 import pandas as pd
 import matplotlib.pyplot as plt
 import time
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Establish the function category_scores that takes the text as the input
-def category_scores(text):
+def category_scores(text, df):
     # Establish the key for pinecone
-    pc = Pinecone(api_key="pcsk_2wP34Q_BMcTpsBMdLgVjxq5SrFidKYDnr9Xj2heFtv6iEKdVUnVsyv58XLXFpBT8rk2r2U")
+    pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
     # Establish the index name 
-    index_name = "document--embeddings"
+    index_name = os.getenv("PINECONE_INDEX")
 
     # Delete and recreate index
-    pc.delete_index(index_name)
-    pc.create_index(
-        name=index_name,
-        dimension=1024,
-        metric="cosine",
-        spec=ServerlessSpec(cloud="aws", region="us-east-1")
-    )
+    # pc.delete_index(index_name)
+    # pc.create_index(
+    #     name=index_name,
+    #     dimension=1024,
+    #     metric="cosine",
+    #     spec=ServerlessSpec(cloud="aws", region="us-east-1")
+    # )
 
     # Wait until index is ready
     while not pc.describe_index(index_name).status['ready']:
@@ -37,7 +41,7 @@ def category_scores(text):
     index = pc.Index(index_name)
 
     # Insert input text into Pinecone, adding ID and Vec variables
-    data = [{"id": "vec1", "text": text}]
+    # data = [{"id": "vec1", "text": text}]
     embeddings = pc.inference.embed(
         # We will be using the multilingual e5 large model
         model="multilingual-e5-large",
@@ -45,7 +49,7 @@ def category_scores(text):
         parameters={"input_type": "passage", "truncate": "END"}
     )
     vectors = [{
-        "id": "vec1",
+        "id": str(df.iloc[0]['id']),
         "values": embeddings[0].values,
         "metadata": {"text": text}
     }]
@@ -80,7 +84,7 @@ def category_scores(text):
         # Embed the vector value as long as the max retry limit wasn't reached
         while attempt < max_retries:
             result = index.query(
-                namespace="ns1",
+                namespace="ns2",
                 vector=embedding[0].values,
                 top_k=3,
                 include_values=False,
@@ -98,22 +102,23 @@ def category_scores(text):
 
         # Append the score in scores 
         scores[category] = score
-        time.sleep(10)
+        time.sleep(4)
 
     # Convert to DataFrame
     df_scores = pd.DataFrame([scores])
 
     # Sort the DataFrame by score (descending)
-    df_sorted = df_scores.iloc[:, :].sort_values(by=0, axis=1, ascending=False)
+    df_sorted = df_scores.T.sort_values(by=0, ascending=False)
 
     # Create bar plot
     fig, ax = plt.subplots(figsize=(16, 6))
-    ax.bar(df_sorted.columns, df_sorted.iloc[0, :], color="orange")
+    ax.bar(df_sorted.index, df_sorted[0], color="orange")
     ax.set_ylim(0.7, 0.9)
     ax.set_xlabel("Categories")
     ax.set_ylabel("Scores")
     ax.set_title("Sorted Scores")
-    ax.set_xticklabels(df_sorted.columns, rotation=90)
+    ax.set_xticks(range(len(df_sorted)))
+    ax.set_xticklabels(df_sorted.index, rotation=90)
     fig.tight_layout()
     return fig
     # plt.show()
