@@ -120,6 +120,6 @@ def category_scores(text, df):
     ax.set_xticks(range(len(df_sorted)))
     ax.set_xticklabels(df_sorted.index, rotation=90)
     fig.tight_layout()
+    plt.show()
     return fig
-    # plt.show()
 
