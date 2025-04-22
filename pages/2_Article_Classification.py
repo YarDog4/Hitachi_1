@@ -1,24 +1,41 @@
 from src.preprocessing.load_label import load_labeled_dataset
-from src.classification.category_scores import category_scores
+# from src.classification.category_scores import category_scores
 from src.classification.category import categorization_pipeline, classify_article
 from src.visualization.bar_graphs import plot_top_categories
 from src.visualization.pca_attempt import plot_3d_vectors
 from src.visualization.pca_attempt import plot_2d_vectors
 
+from src.classification.category_scores import compare_direct_similarity, plot_scores
 from collections import defaultdict
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
 
+#Caching resources for faster integration
+@st.cache_resource()
+def get_pinecone():
+    return categorization_pipeline()
+
+# @st.cache_resource()
+# def get_category(text):
+#     return category_scores(text)
+
+@st.cache_data(show_spinner=False)
+def get_user_vector(text: str):
+    user_vector = pc.inference.embed(
+        model="multilingual-e5-large",
+        inputs=[user_article],
+        parameters={"input_type": "query"}
+    )[0]['values']
+    return user_vector
+
 st.set_page_config(page_title="Article Classification and Visualization", layout="wide")
 st.title("Article Categorization")
 
 #Upload the category index and the dataframe here
 df, category_index = load_labeled_dataset(r"..\Hitachi_1\dataset\20_newsgroup")
-        # @st.cache_resource()
-        # def get_category(text):
-        #     return category_scores(text)
+
 
 #This code helps only plot the categories the user article closely matches
 def filter_embeddings(reduced_embeddings, labels, selected_ids):
@@ -32,7 +49,7 @@ def filter_embeddings(reduced_embeddings, labels, selected_ids):
 
     return np.array(filtered_embeddings), filtered_labels
 
-pc, index_name, reduced_3d_embeddings, pca_3d_model, reduced_2d_embeddings, pca_2d_model, labels = categorization_pipeline()
+pc, index_name, reduced_3d_embeddings, pca_3d_model, reduced_2d_embeddings, pca_2d_model, labels = get_pinecone()
 
 user_article = st.text_area("Enter your article below to classify it:", height=500)
 
@@ -53,17 +70,11 @@ if st.session_state.run_classify:
 
             predicted_category, query_results= classify_article(pc, index_name, user_article, top_k=top_k)
 
-            #started the 3D rep
             #getting the vector for the user input
-
             if 'vector' in query_results:
                 user_vector = query_results['vector']
             else: 
-                user_vector = pc.inference.embed(
-                    model="multilingual-e5-large",
-                    inputs=[user_article],
-                    parameters={"input_type": "query"}
-                )[0]['values']
+                user_vector = get_user_vector(user_article)
 
             new_point_3d = pca_3d_model.transform([user_vector])[0]
             new_point_2d = pca_2d_model.transform([user_vector])[0]
@@ -71,7 +82,6 @@ if st.session_state.run_classify:
             index_to_category_pred = {i: k for k, i in category_index.items()}
             category_to_index = {v: k for k, v in index_to_category_pred.items()}
 
-            # selected_category_ids = []
             article_ids = []
 
             top_articles = [
@@ -130,9 +140,9 @@ if st.session_state.run_classify:
         top_categories = plot_top_categories(query_results["matches"])
         st.pyplot(top_categories)
 
-        st.markdown("### 🏷️ Selected Categories:")
+        st.subheader("Selected Categories:")
         for cat_id in selected_categories:
-            st.markdown(f"- 🟣 **Category ID:** `{cat_id}`")
+            st.markdown(f"- 🟠 **Category Name:** {index_to_category_pred[cat_id].upper()} `{cat_id}`")
 
         filtered_2d_embeddings, filtered_2d_labels = filter_embeddings(reduced_2d_embeddings, labels, selected_categories)
         d2_plot = plot_2d_vectors(filtered_2d_embeddings, filtered_2d_labels, new_point_2d)
@@ -142,15 +152,10 @@ if st.session_state.run_classify:
         d3_plot = plot_3d_vectors(filtered_3d_embeddings, filtered_3d_labels, new_point_3d)
         st.plotly_chart(d3_plot, use_container_width=True)
 
-        #INTEGRATE THIS SOON
-        st.markdown("MATT can you explain a little bit about that this graph means here")
-        category_bar = category_scores(user_article, df)
-        st.pyplot(category_bar)    
-
-        # @st.cache_resource()
-        # def get_pinecone():
-        #     return categorization_pipeline()
-
+        st.subheader("Category Similarity Comparison")
+        df_sorted = compare_direct_similarity(user_article)
+        chart = plot_scores(df_sorted, "Direct Similarity to Category Prompts")
+        st.pyplot(chart)   
 
     else:
         st.warning("Please enter text before pressing 'Classify'")

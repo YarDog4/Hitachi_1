@@ -32,7 +32,7 @@ def plot_2d_vectors(reduced_embeddings, labels, new_point=None):
         ))
 
     fig.update_layout(
-        title="Interactive 3D PCA of Article Embeddings",
+        title="Interactive 2D PCA of Article Embeddings",
         scene=dict(
             xaxis_title='PCA 1',
             yaxis_title='PCA 2',
