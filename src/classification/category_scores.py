@@ -68,4 +68,5 @@ def plot_scores(df_sorted, title):
     ax.set_xticks(range(len(df_sorted)))
     ax.set_xticklabels(df_sorted.index, rotation=90)
     fig.tight_layout()
+    plt.show()
     return fig
