@@ -153,6 +153,7 @@ if st.session_state.run_classify:
         st.plotly_chart(d3_plot, use_container_width=True)
 
         st.subheader("Category Similarity Comparison")
+        st.markdown("This graph uses vector embedding and cosine simularity to create a similarity value to each category for the classified text.")
         df_sorted = compare_direct_similarity(user_article)
         chart = plot_scores(df_sorted, "Direct Similarity to Category Prompts")
         st.pyplot(chart)   
