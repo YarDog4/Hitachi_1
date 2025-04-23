@@ -26,7 +26,8 @@ st.set_page_config(page_title="Article Classification and Visualization", layout
 st.title("Article Categorization")
 
 #Upload the category index and the dataframe here
-df, category_index = load_labeled_dataset(r"RELATIVE_PATH")
+df, category_index = load_labeled_dataset(os.getenv(r"RELATIVE_PATH"))
+
 
 #This code helps only plot the categories the user article closely matches
 def filter_embeddings(reduced_embeddings, labels, selected_ids):
@@ -126,8 +127,8 @@ if st.session_state.run_classify:
 
         st.subheader("Visualizations")
 
-        st.markdown("JESSI could you explain a little bit about this graph")
-        top_categories = plot_top_categories(query_results["matches"])
+        st.markdown("This bar chart visualizes the most common categories returned as top matches during article classification. Each bar represents a category from the dataset, and the height of the bar indicates how frequently that category appeared among the top results. .")
+        top_categories = plot_top_categories(query_results["matches"], category_index)
         st.pyplot(top_categories)
 
         st.subheader("Selected Categories:")
@@ -143,6 +144,7 @@ if st.session_state.run_classify:
         st.plotly_chart(d3_plot, use_container_width=True)
 
         st.subheader("Category Similarity Comparison")
+        st.markdown("This graph uses vector embedding and cosine simularity to create a similarity value to each category for the classified text.")
         df_sorted = compare_direct_similarity(user_article)
         chart = plot_scores(df_sorted, "Direct Similarity to Category Prompts")
         st.pyplot(chart)   
