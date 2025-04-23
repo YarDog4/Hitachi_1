@@ -1,14 +1,10 @@
-from src.preprocessing.load_label import load_labeled_dataset
-# from src.classification.category_scores import category_scores
+from src.classification.category_scores import compare_direct_similarity, plot_scores
 from src.classification.category import categorization_pipeline, classify_article
+from src.preprocessing.load_label import load_labeled_dataset
 from src.visualization.bar_graphs import plot_top_categories
 from src.visualization.pca_attempt import plot_3d_vectors
 from src.visualization.pca_attempt import plot_2d_vectors
 
-from src.classification.category_scores import compare_direct_similarity, plot_scores
-from collections import defaultdict
-from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
 
@@ -16,10 +12,6 @@ import streamlit as st
 @st.cache_resource()
 def get_pinecone():
     return categorization_pipeline()
-
-# @st.cache_resource()
-# def get_category(text):
-#     return category_scores(text)
 
 @st.cache_data(show_spinner=False)
 def get_user_vector(text: str):
@@ -34,8 +26,7 @@ st.set_page_config(page_title="Article Classification and Visualization", layout
 st.title("Article Categorization")
 
 #Upload the category index and the dataframe here
-df, category_index = load_labeled_dataset(r"..\Hitachi_1\dataset\20_newsgroup")
-
+df, category_index = load_labeled_dataset(r"RELATIVE_PATH")
 
 #This code helps only plot the categories the user article closely matches
 def filter_embeddings(reduced_embeddings, labels, selected_ids):
@@ -94,7 +85,6 @@ if st.session_state.run_classify:
             ]
 
             selected_categories = list(set(article["category"] for article in top_articles))
-            print(selected_categories)
 
             for cat_name in selected_categories:
                 if cat_name in category_to_index:
@@ -156,6 +146,5 @@ if st.session_state.run_classify:
         df_sorted = compare_direct_similarity(user_article)
         chart = plot_scores(df_sorted, "Direct Similarity to Category Prompts")
         st.pyplot(chart)   
-
     else:
         st.warning("Please enter text before pressing 'Classify'")

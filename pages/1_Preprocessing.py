@@ -1,13 +1,12 @@
-import os
 from src.preprocessing.load_label import load_labeled_dataset
 from src.preprocessing.cleaning_data import clean_text
 from src.visualization.avg_word_count import average_word_count
 from src.visualization.word_frequency import plotting_word_frequencies
-import matplotlib.pyplot as plt
 from dotenv import load_dotenv
-load_dotenv()
-
 import streamlit as st
+import os
+
+load_dotenv()
 
 st.set_page_config(page_title="Data Preprocessing", layout="wide", page_icon="")
 
@@ -31,7 +30,7 @@ def load_data(data_directory: str):
     return load_labeled_dataset(data_directory)
 
 if data_directory:
-    df, category_index = load_labeled_dataset(r"..\Hitachi_1\dataset\20_newsgroup")
+    df, category_index = load_labeled_dataset(r"RELATIVE_PATH")
     st.write(f"Loaded **{len(df)}** documents from **{len(category_index)}** categories")
     
     fig, avg_wc = average_word_count(df, text_column='text', category_map=category_index)
