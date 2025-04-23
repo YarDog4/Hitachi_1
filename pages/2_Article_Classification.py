@@ -1,3 +1,4 @@
+import os
 from src.preprocessing.load_label import load_labeled_dataset
 # from src.classification.category_scores import category_scores
 from src.classification.category import categorization_pipeline, classify_article
@@ -34,7 +35,7 @@ st.set_page_config(page_title="Article Classification and Visualization", layout
 st.title("Article Categorization")
 
 #Upload the category index and the dataframe here
-df, category_index = load_labeled_dataset(r"..\Hitachi_1\dataset\20_newsgroup")
+df, category_index = load_labeled_dataset(os.getenv(r"RELATIVE_PATH"))
 
 
 #This code helps only plot the categories the user article closely matches
@@ -136,8 +137,8 @@ if st.session_state.run_classify:
 
         st.subheader("Visualizations")
 
-        st.markdown("JESSI could you explain a little bit about this graph")
-        top_categories = plot_top_categories(query_results["matches"])
+        st.markdown("This bar chart visualizes the most common categories returned as top matches during article classification. Each bar represents a category from the dataset, and the height of the bar indicates how frequently that category appeared among the top results. .")
+        top_categories = plot_top_categories(query_results["matches"], category_index)
         st.pyplot(top_categories)
 
         st.subheader("Selected Categories:")
