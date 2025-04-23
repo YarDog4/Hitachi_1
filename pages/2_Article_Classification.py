@@ -7,6 +7,7 @@ from src.visualization.pca_attempt import plot_2d_vectors
 
 import numpy as np
 import streamlit as st
+import os
 
 #Caching resources for faster integration
 @st.cache_resource()
