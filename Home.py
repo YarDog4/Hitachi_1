@@ -27,7 +27,7 @@ st.subheader("Introduction")
 st.text("A quick what we did - JESSI")
 
 st.subheader("What does this app do?")
-st.text("This app takes a text and analyzes it for you, comparing it to articles in our database and categorizing it.")
+st.text("This tool takes a text and analyzes it for you, comparing it to articles in our database and categorizing it. It also provides visualizations on the articles in the database and your text. ")
 
 st.subheader("How to use?")
 st.text("You use our app by - YAREN")
