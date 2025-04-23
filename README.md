@@ -7,7 +7,7 @@ This application was developed using Python 3.13, so Python 3.13 is recommended 
 ⭐You will need a computer as well (duh)⭐
 
 # Getting started
-Make sure you have created an empty folder or clone this repository to a location on your device where you can access.
+Make sure you have created an empty folder or clone this repository to a location on your device where you can access. To clone this repository, you can use an IDE like VSCode, and put the commands shown below into your terminal
 
 1. **Clone the repository**
     ```bash
