@@ -2,11 +2,13 @@
 This application is a Python based application that uses Streamlit to display the visualizations and uses Pinecone to tokenize, vectorize and categorize text from a chosen dataset. Below is a walkthrough for how to get the code, set it up, and run the Streamlit appication on your local machine
 
 # Prerequisites
-This application was developed using Python 3.13, so Python 3.13 is recommended to run and add to this application. 
+This application was developed using Python 3.13, so Python 3.13 is recommended to run and add to this application. You can download the latest version of Python [here](https://www.python.org/downloads/)
 
 ⭐You will need a computer as well (duh)⭐
 
 # Getting started
+Make sure you have created an empty folder or clone this repository to a location on your device where you can access.
+
 1. **Clone the repository**
     ```bash
     git clone https://github.com/<Github_Username>/Hitachi_1.git
@@ -77,10 +79,15 @@ This application was developed using Python 3.13, so Python 3.13 is recommended 
     DATASET_PATH="FULL_PATH_TO_DATASET_FOLDER"
     RELATIVE_PATH="RELATIVE_PATH_TO_DATASET_FOLDER"
     ```
-    There is an .env.example that will act as your template, just remember when you start developing, remove the .example at the end of this file so it is only named .env
+    There is an .env.example that will act as your template, just remember when you start developing, remove the .example at the end of this file so it is only named .env. The .gitignore file will ignore any changes to this file, so you don't need to worry about leaking sensitive information, specifically the Pinecone API key.
 
 # How to run
-Assuming you have the repository cloned and Python 3.13 installed, go into your home directory (should be Hitachi_1) and run:
+Assuming you have the repository cloned and Python 3.13 installed, go into your home directory (should be Hitachi_1) like this:
+```bash
+cd Hitachi_1
+```
+
+and run:
 ```bash
 python -m streamlit run Home.py
 ```
