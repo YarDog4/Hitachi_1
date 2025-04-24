@@ -23,12 +23,7 @@ Use the sidebar (right pointing arrow on the top left of the page) to navigate t
 
 
 st.subheader("Introduction")
-st.markdown("""
-A quick what we did - Ethan
-            
----
-
-""")
+st.text("We created an app that categorizes any inputted text and provides category similarity scores and similar articles. Using over 19,000 articals our system can catagorize any artical you submit along with showing up to the 20 most closly related articles from our database.")
 
 st.subheader("What does this app do?")
 st.markdown("""
