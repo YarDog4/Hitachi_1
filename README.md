@@ -74,12 +74,13 @@ Make sure you have created an empty folder or clone this repository to a locatio
     PINECONE_ENVIRONMENT="YOUR_PINECONE_REGION" #Ex: us-east-1
 
     #DEFAULT INDEX NAME
-    #OPTIONAL
-    PINECONE_INDEX="PINECONE_INDEX_NAME" #Can declare it here - code will create a new index if given index is nonexistent
+    PINECONE_INDEX="PINECONE_INDEX_NAME" #Edit here
+                                         #Can declare it here - code will create a new index if given index is nonexistent
+                                         #Ex: "test"
 
     #DATASET PATH
-    DATASET_PATH="FULL_PATH_TO_DATASET_FOLDER"
-    RELATIVE_PATH="RELATIVE_PATH_TO_DATASET_FOLDER"
+    DATASET_PATH="FULL_PATH_TO_DATASET_FOLDER" #Edit here
+    RELATIVE_PATH="RELATIVE_PATH_TO_DATASET_FOLDER" #Edit here
     ```
     There is an .env.example that will act as your template, just remember when you start developing, remove the .example at the end of this file so it is only named .env. The .gitignore file will ignore any changes to this file, so you don't need to worry about leaking sensitive information, specifically the Pinecone API key.
 
