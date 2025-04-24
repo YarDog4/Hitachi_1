@@ -1,13 +1,12 @@
-import os
 from src.preprocessing.load_label import load_labeled_dataset
 from src.preprocessing.cleaning_data import clean_text
 from src.visualization.avg_word_count import average_word_count
 from src.visualization.word_frequency import plotting_word_frequencies
-import matplotlib.pyplot as plt
 from dotenv import load_dotenv
-load_dotenv()
-
 import streamlit as st
+import os
+
+load_dotenv()
 
 st.set_page_config(page_title="Data Preprocessing", layout="wide", page_icon="")
 

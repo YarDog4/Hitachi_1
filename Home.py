@@ -24,7 +24,7 @@ To get started, choose a section from the sidebar.
 
 
 st.subheader("Introduction")
-st.text("A quick what we did - Ethan")
+st.text("We created an app that categorizes any inputted text and provides category similarity scores and similar articles.")
 
 st.subheader("What does this app do?")
 st.text("This tool takes a text and analyzes it for you, comparing it to articles in our database and categorizing it. \nIt also provides visualizations on the articles in the database and your text. ")

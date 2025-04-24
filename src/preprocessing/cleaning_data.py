@@ -1,10 +1,10 @@
-import re
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
 import nltk
-
+import re
 nltk.download('stopwords')
 nltk.download('wordnet')
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+
 
 stop_words = set(stopwords.words('english'))
 lemmatizer = WordNetLemmatizer()

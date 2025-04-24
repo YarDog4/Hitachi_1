@@ -9,7 +9,6 @@ def average_word_count(df, text_column="text", category_map=None):
     #Taking the average of the word counts based on category of Article
     avg_word_count = df.groupby('category')['word_count'].mean().reset_index()
     avg_word_count.columns = ['category_index', 'average_word_count']
-
     
     #Mapping category names
     if category_map:

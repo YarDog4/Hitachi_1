@@ -2,9 +2,6 @@
 import pickle
 from pinecone import Pinecone
 from pinecone import ServerlessSpec
-import matplotlib.pyplot as plt
-import seaborn as sns
-from wordcloud import WordCloud
 import pandas as pd
 import time
 import random
@@ -14,7 +11,6 @@ from glob import glob
 import os
 from dotenv import load_dotenv
 from pathlib import Path
-import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from sklearn.decomposition import PCA
 
@@ -25,8 +21,6 @@ from src.preprocessing.cleaning_data import clean_text
 load_dotenv()
 
 environment = os.getenv("PINECONE_ENVIRONMENT")
-# index_name = os.getenv('PINECONE_INDEX')
-#Location where the data set is at
 data_directory = os.getenv(r"DATASET_PATH")
 
 #performing PCA
@@ -55,21 +49,21 @@ def find_csv(dir, pattern="*.csv"):
 def clean(df):
     return clean_text(df.copy(), text_column="text", lemmatize=False)
 
-# Function to initialize Pinecone connection
+#Initialize Pinecone connection
 def initialize_pinecone(api_key):
     pc = Pinecone(api_key=api_key)
     return pc
 
-# Function to create Pinecone index
+#Create Pinecone index
 def create_index(pc):
     index_name = os.getenv('PINECONE_INDEX').lower()
 
-    # Check if the index already exists
+    #Check if the index already exists
     try:
         pc.describe_index(index_name)
         print(f"Index {index_name} already exists.")
     except Exception as e:
-        # If index doesn't exist, create it
+        #If index doesn't exist, create it
         print(f"Creating Pinecone index {index_name}...")
         pc.create_index(
             name=index_name,
@@ -119,7 +113,7 @@ def send_in_batches_parallel(pc, data, batch_size=96, max_workers=2, delay=2):
 
     return all_embeddings
 
-# Function to process and insert vectors into Pinecone
+#Process and insert vectors into Pinecone
 def process_and_insert_vectors(pc, index_name, data, embeddings, batch_size=100):
     index = pc.Index(index_name)
     vectors = []
@@ -128,8 +122,6 @@ def process_and_insert_vectors(pc, index_name, data, embeddings, batch_size=100)
             "id": d['id'],
             "values": e,
             "metadata": {
-                # 'text': d['text'],
-                # 'text_clean': d['text_clean'],
                 'category': d.get('category')
             }
         })
@@ -173,7 +165,7 @@ def classify_article(pc, index_name, article, top_k=5):
         return f"Most similar to: {fallback_category}", results
     
 
-# Function for querying the index
+#Querying the index
 def query_index(pc, index_name, query):
     embedding = pc.inference.embed(
         model="multilingual-e5-large",
@@ -188,10 +180,8 @@ def query_index(pc, index_name, query):
         include_values=False,
         include_metadata=True
     )
-    print(results)
     return results
 
-# Main function for user interaction
 def categorization_pipeline():
 
     api_key_ind = os.getenv('PINECONE_API_KEY')
@@ -202,12 +192,11 @@ def categorization_pipeline():
 
     #loading data directory and making a Dataframe
     default_data_directory = Path(__file__).resolve().parent.parent.parent
-    cleaned_csv_path = default_data_directory / "dataset" / "csv" / "cleaned.csv"
+    cleaned_csv_path = default_data_directory / "dataset" / "csv" / "cleaned" / "cleaned.csv"
     embeddings_path = default_data_directory / "dataset" / "csv" / "embeddings.npy"
     metadata_path = default_data_directory / "dataset" / "csv" / "metadata.pkl"
 
     if cleaned_csv_path.exists():
-        #print("✅ Using cached cleaned.csv")
         df_clean = pd.read_csv(cleaned_csv_path)
     else:
         dir = default_data_directory / "dataset" / "20_newsgroup"
@@ -216,18 +205,13 @@ def categorization_pipeline():
         df_clean = clean(df)
         df_clean.to_csv(cleaned_csv_path, index=False)
         
-
     print(f"Loaded **{len(df_clean)}** documents")
 
-    # Prepare data from the CSV file
+    #Prepare data from the CSV file
     df_clean['id'] = df_clean['id'].astype(str)
     df_clean['text_clean'] = df_clean['text_clean'].fillna("").astype(str)
     data_from_df = df_clean[['id', 'text', 'category', 'text_clean']].to_dict(orient='records')
     
-    ##########################################################
-    # data_subset = data_from_df[:960] #for testing purposes
-    ##########################################################
-
     if embeddings_path.exists() and metadata_path.exists():
         print("✅ Loaded cached embeddings")
         embedding_vectors = np.load(embeddings_path, allow_pickle=True)
@@ -250,7 +234,7 @@ def categorization_pipeline():
     reduced_3d_embeddings, pca_3d_model = pca_3d_vec(embedding_vectors)
     reduced_2d_embeddings, pca_2d_model = pca_2d_vec(embedding_vectors)
 
-    # Wait until the index is ready
+    #Wait until the index is ready
     stats = pc.describe_index(index_name).namespaces
     vector_count = stats.get("ns1", {}).get("vector_count", 0) if stats else 0
 
