@@ -64,7 +64,10 @@ Make sure you have created an empty folder or clone this repository to a locatio
     ```
     #### macOS or Linux
      ```bash
-    pip install --upgrade && pip install -r requirements.txt
+    pip install --upgrade
+    ```
+     ```bash
+    pip install -r requirements.txt
     ```
 5. **Create a .env**
     In order to connect to Pinecone and use your data directories, you must create a .env that defines the environment variables this Python Application will use. You can create a Pinecone account [here](https://www.pinecone.io/) It should have the following variables:
