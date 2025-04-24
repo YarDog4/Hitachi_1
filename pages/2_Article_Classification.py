@@ -23,8 +23,8 @@ def get_user_vector(text: str):
     )[0]['values']
     return user_vector
 
-st.set_page_config(page_title="Article Classification and Visualization", layout="wide")
-st.title("Article Categorization")
+st.set_page_config(page_title="Article Categorization and Visualization", layout="wide")
+st.title("📄 Article Categorization")
 
 #Upload the category index and the dataframe here
 df, category_index = load_labeled_dataset(os.getenv(r"RELATIVE_PATH"))
@@ -47,8 +47,7 @@ pc, index_name, reduced_3d_embeddings, pca_3d_model, reduced_2d_embeddings, pca_
 user_article = st.text_area("Enter your article below to classify it:", height=500)
 
 #User can specify how many articles they want outputted from the data set
-top_k = st.sidebar.slider("Top K Matches", min_value=1, max_value=20, value=10)
-
+top_k = st.sidebar.slider("Top Article Matches", min_value=1, max_value=20, value=10)
 #Classify session state logic, prevents the tool from being refreshed when user chooses a new top K
 if "run_classify" not in st.session_state:
     st.session_state.run_classify = False
@@ -87,7 +86,6 @@ if st.session_state.run_classify:
             ]
 
             selected_categories = list(set(article["category"] for article in top_articles))
-
             for cat_name in selected_categories:
                 if cat_name in category_to_index:
                     cat_id = category_to_index[cat_name]
@@ -98,7 +96,12 @@ if st.session_state.run_classify:
             else:
                 st.warning("❌ Could not determine a category. Try with a more descriptive article.")
 
+            st.markdown("---")
             st.subheader("Top Matches")
+            st.badge("Interactive", color="orange")
+            st.markdown("The **Top Matches** section returns the most similar articles retrived from the dataset using cosine similarity." \
+            "Using to side navigation bar, you can adjust the top articles the platform returns.")
+
             low_score = False
 
             article_ids=[]
@@ -119,13 +122,16 @@ if st.session_state.run_classify:
                     low_score = True
                     break
 
-                st.markdown(f"-Article ID: {match['id']}, Score: {match['score']:.3f}, Category: {category_string.upper()} ({raw_category})")
-                
+                st.markdown(f"- **Article ID:** {match['id']}, **Score:** {match['score']:.3f}, **Category:** {category_string.upper()} ({raw_category})")
+        
+        st.markdown("---")       
         st.subheader("Article Lookup")
+        st.markdown("Here, you can choose to view the specific articles by their IDs from the **Top Matches** result by using the dropdown below")
         doc_index = st.selectbox("Select Article ID", article_ids, key="selected_article")
         original_text = df.iloc[int(doc_index)]['text']
         st.text_area("Original Text", value = original_text, height = 500)
-
+        
+        st.markdown("---")       
         st.subheader("Visualizations")
 
         st.markdown("This bar chart visualizes the most common categories returned as top matches during article classification. Each bar represents a category from the dataset, and the height of the bar indicates how frequently that category appeared among the top results. .")
@@ -138,10 +144,15 @@ if st.session_state.run_classify:
 
         filtered_2d_embeddings, filtered_2d_labels = filter_embeddings(reduced_2d_embeddings, labels, selected_categories)
         d2_plot = plot_2d_vectors(filtered_2d_embeddings, filtered_2d_labels, new_point_2d)
+        st.markdown("The 2D PCA visualization below reduces the high-dimentional article embeddings into 2 principal components, which allows us to see how similar or distinct different article categories are in a flat space. " \
+        "The plot below is interactive, allowing you to choose which categories you would like to see on the 2D graph.")
         st.plotly_chart(d2_plot, use_container_width=True)
 
         filtered_3d_embeddings, filtered_3d_labels = filter_embeddings(reduced_3d_embeddings, labels, selected_categories)
         d3_plot = plot_3d_vectors(filtered_3d_embeddings, filtered_3d_labels, new_point_3d)
+        st.markdown("The 3D PCA visualization below reduces the high-dimentional article embeddings into 3 principal components, which allows us to see how similar or distinct different article categories are in a 3D space. " \
+        "Adding another dimension preserves more variance from the original 1024 dimentional vector embedding space. " \
+        "The plot below is interactive, allowing you to choose which categories you would like to see on the 3D graph.")
         st.plotly_chart(d3_plot, use_container_width=True)
 
         st.subheader("Category Similarity Comparison")

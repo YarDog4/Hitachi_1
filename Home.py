@@ -13,9 +13,9 @@ from Kaggle's [20 Newsgroup original](https://www.kaggle.com/datasets/au1206/20-
 
 Use the sidebar (right pointing arrow on the top left of the page) to navigate through these sections:
 
-1) **Home** 
-2) **Preprocessing**: Explore raw and cleaned text data with frequency stats.
-3) **Article Categorization**: Input a custom article and get predicted categories using Pinecone with visual summaries of embeddings and similarity metrics.
+1) **📚 Home** 
+2) **🧼 Text Cleaning and Word Analysis**: Explore raw and cleaned text data with frequency stats.
+3) **📄 Article Categorization**: Input a custom article and get predicted categories using Pinecone with visual summaries of embeddings and similarity metrics.
 
 ---
 
