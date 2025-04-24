@@ -64,9 +64,9 @@ cleaned_text = clean_dataframe.iloc[doc_index]["text_clean"]
 
 #Displaying
 st.subheader("Original Text")
-st.text_area("Original Text", value=original_text, height = 200)
+st.text_area("Original Text", value=original_text, height = 350)
 st.subheader("Cleaned Text")
-st.text_area("Cleaned Text", value=cleaned_text, height=200)
+st.text_area("Cleaned Text", value=cleaned_text, height=350)
 
 st.subheader("Word Frequencies")
 top_n = st.sidebar.slider("Select number of top words", min_value=5, max_value=100, value=20, step=5)
