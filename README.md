@@ -101,6 +101,8 @@ and run:
 python -m streamlit run Home.py
 ```
 
+You will be prompted to enter in an email to receive streamlit emails. Press 'Enter' to bypass this.
+
 # Additional Information
 When first running the application, it may take a little bit to load the visualizations and features, depending on how big your dataset is. The defualt dataset this application uses is around 20,000 thousand files, so Pinecone vectorizing and embeddings take a long time. To combat this heavy overhead, this application caches your Pinecone vector embeddings and metadata. These files will be located in the ```../dataset/csv``` directory.
 
