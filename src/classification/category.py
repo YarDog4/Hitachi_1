@@ -17,7 +17,6 @@ from sklearn.decomposition import PCA
 from src.preprocessing.load_label import load_labeled_dataset
 from src.preprocessing.cleaning_data import clean_text
 
-
 load_dotenv()
 
 environment = os.getenv("PINECONE_ENVIRONMENT")
@@ -164,7 +163,6 @@ def classify_article(pc, index_name, article, top_k=5):
         fallback_category = fallback['metadata'].get('category', "Unknown")
         return f"Most similar to: {fallback_category}", results
     
-
 #Querying the index
 def query_index(pc, index_name, query):
     embedding = pc.inference.embed(

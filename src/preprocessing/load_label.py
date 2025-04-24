@@ -42,7 +42,7 @@ def load_labeled_dataset(data_directory: str):
     print(f"✅ Loaded {len(df)} documents from {len(category_index)} categories")
 
     #creating the csv for inspection
-    output_dir = "csv/raw"
+    output_dir = "dataset/csv/raw"
     os.makedirs(output_dir, exist_ok=True)
     output_path = os.path.join(output_dir, "raw.csv")
     df.to_csv(output_path, index=False, encoding='utf-8')

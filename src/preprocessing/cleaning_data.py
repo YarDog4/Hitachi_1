@@ -35,7 +35,7 @@ def clean_text(df, text_column="text", lemmatize=False):
     clean_text = clean_text.apply(lambda x: re.sub(r'[^\w\s]', '', x)) #Removing punctuation such as ? or !
     clean_text = clean_text.apply(lambda x: ' '.join([word for word in x.split() if word not in stop_words])) #Removing stop words
     
-    # Remove stopwords (and optionally lemmatize)
+    #Remove stopwords (and optionally lemmatize)
     def process_text(text):
         words = text.split()
         if lemmatize:
