@@ -13,9 +13,9 @@ from the 20 Newsgroups dataset.
 
 Use the sidebar to navigate through the sections:
 
-- **1 Home**: 
-- **2 Preprocessing**: Explore raw and cleaned text data with frequency stats.
-- **3 Article Categorization**: Input a custom article and get predicted categories using Pinecone with visual summaries of embeddings and similarity metrics.
+- **Home**
+- **Preprocessing**: Explore raw and cleaned text data with frequency stats.
+- **Article Categorization**: Input a custom article and get predicted categories using Pinecone with visual summaries of embeddings and similarity metrics.
 
 ---
 
@@ -27,7 +27,7 @@ st.subheader("Introduction")
 st.text("A quick what we did - Ethan")
 
 st.subheader("What does this app do?")
-st.text("This tool takes a text and analyzes it for you, comparing it to articles in our database and categorizing it. It also provides visualizations on the articles in the database and your text. ")
+st.text("This tool takes a text and analyzes it for you, comparing it to articles in our database and categorizing it. \nIt also provides visualizations on the articles in the database and your text. ")
 
 st.subheader("How to use?")
 st.text("You use our app by - YAREN")
