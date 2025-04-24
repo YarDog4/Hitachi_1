@@ -17,7 +17,7 @@ Make sure you have created an empty folder or clone this repository to a locatio
     ```
 3. **Setup a Python Virtual Environment (Optional but recommended)**
 
-    First be sure to be in the Hitachi_1 directory _(more information on how to tranverse to that below)_
+    **First, be sure to be in the Hitachi_1 directory** _(more information on how to tranverse to that below)_
     #### Windows (CMD or Powershell)
     ```bash
     python -m venv <your_venv_name>
