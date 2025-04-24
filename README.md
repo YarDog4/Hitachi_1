@@ -15,6 +15,8 @@ Make sure you have created an empty folder or clone this repository to a locatio
     cd Hitachi_1
     ```
 2. **Setup a Python Virtual Environment (Optional but recommended)**
+
+    First be sure to be in the Hitachi_1 directory _(more information on how to tranverse to that below)_
     #### Windows (CMD or Powershell)
     ```bash
     python -m venv <your_venv_name>
@@ -52,7 +54,7 @@ Make sure you have created an empty folder or clone this repository to a locatio
     ```bash
     source bin/deactivate
     ```
-3. **Install Python Dependencies**
+4. **Install Python Dependencies**
     There is a requirements.txt file that contains all of the necessary dependencies for the application. With your virtual environment active, run this:
 
     #### Windows
@@ -63,7 +65,7 @@ Make sure you have created an empty folder or clone this repository to a locatio
      ```bash
     pip install --upgrade && pip install -r requirements.txt
     ```
-4. **Create a .env**
+5. **Create a .env**
     In order to connect to Pinecone and use your data directories, you must create a .env that defines the environment variables this Python Application will use. You can create a Pinecone account [here](https://www.pinecone.io/) It should have the following variables:
 
     ```
