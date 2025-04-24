@@ -86,7 +86,9 @@ Make sure you have created an empty folder or clone this repository to a locatio
     DATASET_PATH="FULL_PATH_TO_DATASET_FOLDER" #Edit here
     RELATIVE_PATH="RELATIVE_PATH_TO_DATASET_FOLDER" #Edit here
     ```
-    There is an .env.example that will act as your template, just remember when you start developing, remove the .example at the end of this file so it is only named .env. The .gitignore file will ignore any changes to this file, so you don't need to worry about leaking sensitive information, specifically the Pinecone API key.
+    There is an .env.example that will act as your template, just remember when you start developing, remove the .example at the end of this file so it is only named .env.
+
+   **The .gitignore file will ignore any changes to this file, so you don't need to worry about leaking sensitive information, specifically the Pinecone API key.**
 
 # How to run
 Assuming you have the repository cloned and Python 3.13 installed, go into your home directory (should be Hitachi_1) like this:
