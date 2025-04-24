@@ -13,15 +13,11 @@ from Kaggle's [20 Newsgroup original](https://www.kaggle.com/datasets/au1206/20-
 
 Use the sidebar (right pointing arrow on the top left of the page) to navigate through these sections:
 
-<<<<<<< HEAD
-- **Home**
-- **Preprocessing**: Explore raw and cleaned text data with frequency stats.
-- **Article Categorization**: Input a custom article and get predicted categories using Pinecone with visual summaries of embeddings and similarity metrics.
-=======
+
 1) **Home** 
 2) **Preprocessing**: Explore raw and cleaned text data with frequency stats.
 3) **Article Categorization**: Input a custom article and get predicted categories using Pinecone with visual summaries of embeddings and similarity metrics.
->>>>>>> 1b033ad3130c7bad50b1b9823c25f7cb8810672b
+
 
 ---
 
@@ -32,16 +28,14 @@ st.subheader("Introduction")
 st.text("We created an app that categorizes any inputted text and provides category similarity scores and similar articles. \nUsing over 19,000 articles our system can categorize an article you submit along with showing up to the 20 most closely \nrelated articles from our database.")
 
 st.subheader("What does this app do?")
-<<<<<<< HEAD
-st.text("This tool takes a text and analyzes it for you, comparing it to articles in our database and categorizing it. \nIt also provides visualizations on the articles in the database and your text. ")
-=======
+
 st.markdown("""
 This tool takes a text and analyzes it for you, comparing it to articles in our database and categorizing it. It also provides visualizations on the articles in the database and your text.
             
 ---
 
 """)
->>>>>>> 1b033ad3130c7bad50b1b9823c25f7cb8810672b
+
 
 st.subheader("How to use?")
 st.markdown("""

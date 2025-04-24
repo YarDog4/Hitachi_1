@@ -24,7 +24,7 @@ def get_user_vector(text: str):
     return user_vector
 
 st.set_page_config(page_title="Article Classification and Visualization", layout="wide")
-st.title("Article Categorization")
+st.title("Article Classification")
 
 #Upload the category index and the dataframe here
 df, category_index = load_labeled_dataset(os.getenv(r"RELATIVE_PATH"))
@@ -47,7 +47,7 @@ st.write(
     """
     This page is where you can enter in an article and it was classify it to the categories in the dataset. It will also display the data in multiple visualizations. 
     
-    Use the tools in the sidebar to: Change how many articls are shown in the top matches.
+    Use the tools in the sidebar to: change how many articls are shown in the top matches.
     """
 )
 user_article = st.text_area("Enter your article below to classify it:", height=500)
