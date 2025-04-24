@@ -27,7 +27,7 @@ Make sure you have created an empty folder or clone this repository to a locatio
     ```bash
     .\<your_venv_name>\Scripts\activate
     ```
-    Deactivate the virtual environment:
+    Deactivate the virtual environment when you are done with your environment:
     ```bash
     scripts\deactivate
     ```
@@ -40,7 +40,7 @@ Make sure you have created an empty folder or clone this repository to a locatio
     ```bash
     source <your_venv_name>/bin/activate
     ```
-    Deactivate the virtual environment:
+    Deactivate the virtual environment when you are done with your environment:
     ```bash
     source bin/deactivate
     ```
