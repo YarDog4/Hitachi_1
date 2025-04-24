@@ -22,7 +22,7 @@ Use the sidebar (right pointing arrow on the top left of the page) to navigate t
 
 
 st.subheader("Introduction")
-st.text("We created an app that categorizes any inputted text and provides category similarity scores and similar articles. \nUsing over 19,000 articles our system can categorize an article you submit along with showing up to the 20 most closely \nrelated articles from our database.")
+st.markdown("We created an app that categorizes any inputted text and provides category similarity scores and similar articles. \nUsing over 19,000 articles our system can categorize an article you submit along with showing up to the 20 most closely \nrelated articles from our database.")
 
 st.subheader("What does this app do?")
 
