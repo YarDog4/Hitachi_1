@@ -15,14 +15,17 @@ Use the sidebar (right pointing arrow on the top left of the page) to navigate t
 
 
 1) **📚 Home** 
-2) **🧼 Text Cleaning and Word Analysis**: Explore raw and cleaned text data with frequency stats.
-3) **📄 Article Categorization**: Input a custom article and get predicted categories using Pinecone with visual summaries of embeddings and similarity metrics.
+2) **🧼 Preprocessing**: Explore raw and cleaned text data with frequency stats.
+3) **📄 Article Classification**: Input a custom article and get predicted categories using Pinecone with visual summaries of embeddings and similarity metrics.
 
 """)
 
+st.markdown("---")
 
 st.subheader("Introduction")
 st.markdown("We created an app that categorizes any inputted text and provides category similarity scores and similar articles. \nUsing over 19,000 articles our system can categorize an article you submit along with showing up to the 20 most closely \nrelated articles from our database.")
+
+st.markdown("---")
 
 st.subheader("What does this app do?")
 

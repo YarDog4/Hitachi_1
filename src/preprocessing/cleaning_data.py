@@ -1,13 +1,20 @@
 import nltk
 import re
-nltk.download('stopwords')
-nltk.download('wordnet')
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
 
+#Ensure a resource is downloaded before proceeding
+def safe_download(resource, path):
+    try:
+        nltk.data.find(path)
+    except LookupError:
+        nltk.download(resource, quiet=True)
 
-stop_words = set(stopwords.words('english'))
-lemmatizer = WordNetLemmatizer()
+def prepare_nltk():
+    #Ensure both stopwords and wordnet are available
+    safe_download('stopwords', 'corpora/stopwords')
+    safe_download('wordnet', 'corpora/wordnet')
+    stop_words = set(nltk.corpus.stopwords.words('english'))
+    lemmatizer = nltk.stem.WordNetLemmatizer()
+    return stop_words, lemmatizer
 
 def clean_text(df, text_column="text", lemmatize=False):
     """
@@ -18,7 +25,7 @@ def clean_text(df, text_column="text", lemmatize=False):
     -Removes emails, URLs, digits, punctuation
     -Removes stopwords
     """
-    
+    stop_words, lemmatizer = prepare_nltk()
     #Lowercase all stings
     df = df.apply(lambda x: x.str.lower() if x.dtype == "object" else x)
     
