@@ -10,12 +10,13 @@ This application was developed using Python 3.13, so Python 3.13 is recommended 
 Make sure you have created an empty folder or clone this repository to a location on your device where you can access. To clone this repository, you can use an IDE like VSCode, and put the commands shown below into your terminal.
 
 1. **Fork the repository**
+
    This is a public repository, so you much fork this repository before cloning (next step!)
-2. **Clone the repository**
+3. **Clone the repository**
     ```bash
     git clone https://github.com/<Github_Username>/Hitachi_1.git
     ```
-3. **Setup a Python Virtual Environment (Optional but recommended)**
+4. **Setup a Python Virtual Environment (Optional but recommended)**
 
     **First, be sure to be in the Hitachi_1 directory** _(more information on how to tranverse to that below)_
     #### Windows (CMD or Powershell)
@@ -55,7 +56,7 @@ Make sure you have created an empty folder or clone this repository to a locatio
     ```bash
     source bin/deactivate
     ```
-4. **Install Python Dependencies**
+5. **Install Python Dependencies**
     There is a requirements.txt file that contains all of the necessary dependencies for the application. With your virtual environment active, run this:
 
     #### Windows
@@ -69,7 +70,7 @@ Make sure you have created an empty folder or clone this repository to a locatio
      ```bash
     pip install -r requirements.txt
     ```
-5. **Create a .env**
+6. **Create a .env**
     In order to connect to Pinecone and use your data directories, you must create a .env that defines the environment variables this Python Application will use. You can create a Pinecone account [here](https://www.pinecone.io/) It should have the following variables:
 
     ```
