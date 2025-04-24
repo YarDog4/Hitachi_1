@@ -24,7 +24,7 @@ def get_user_vector(text: str):
     return user_vector
 
 st.set_page_config(page_title="Article Categorization and Visualization", layout="wide")
-st.title("📄 Article Categorization")
+st.title("📄 Article Classification")
 
 #Upload the category index and the dataframe here
 df, category_index = load_labeled_dataset(os.getenv(r"RELATIVE_PATH"))

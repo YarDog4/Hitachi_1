@@ -14,7 +14,6 @@ from dotenv import load_dotenv
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from sklearn.decomposition import PCA
-# from pinecone.core.exceptions import PineconeProtocolError
 
 
 from src.preprocessing.load_label import load_labeled_dataset

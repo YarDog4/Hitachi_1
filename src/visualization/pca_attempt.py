@@ -1,14 +1,8 @@
-# import matplotlib.pyplot as plt
-# from mpl_toolkits.mplot3d import Axes3D
-from sklearn.preprocessing import LabelEncoder
-# from matplotlib.lines import Line2D
 import plotly.graph_objects as go
 import numpy as np
 
 def plot_2d_vectors(reduced_embeddings, labels, new_point=None):
-    # label_encoder = LabelEncoder()
-    # label_ids = label_encoder.fit_transform(labels)
-    # categories = label_encoder.classes_
+
     categories = np.unique(labels)
 
     fig = go.Figure()
@@ -44,9 +38,7 @@ def plot_2d_vectors(reduced_embeddings, labels, new_point=None):
     return fig
 
 def plot_3d_vectors(reduced_embeddings, labels, new_point=None):
-    # label_encoder = LabelEncoder()
-    # label_ids = label_encoder.fit_transform(labels)
-    # categories = label_encoder.classes_
+
     categories = np.unique(labels)
 
     fig = go.Figure()
