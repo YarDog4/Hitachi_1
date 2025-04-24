@@ -24,7 +24,7 @@ To get started, choose a section from the sidebar.
 
 
 st.subheader("Introduction")
-st.text("We created an app that categorizes any inputted text and provides category similarity scores and similar articles.")
+st.text("We created an app that categorizes any inputted text and provides category similarity scores and similar articles. Using over 19,000 articals our system can catagorize any artical you submit along with showing up to the 20 most closly related articles from our database.")
 
 st.subheader("What does this app do?")
 st.text("This tool takes a text and analyzes it for you, comparing it to articles in our database and categorizing it. \nIt also provides visualizations on the articles in the database and your text. ")
