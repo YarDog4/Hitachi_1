@@ -23,8 +23,10 @@ def get_user_vector(text: str):
     )[0]['values']
     return user_vector
 
+
 st.set_page_config(page_title="Article Categorization and Visualization", layout="wide")
 st.title("📄 Article Classification")
+
 
 #Upload the category index and the dataframe here
 df, category_index = load_labeled_dataset(os.getenv(r"RELATIVE_PATH"))
@@ -43,7 +45,13 @@ def filter_embeddings(reduced_embeddings, labels, selected_ids):
     return np.array(filtered_embeddings), filtered_labels
 
 pc, index_name, reduced_3d_embeddings, pca_3d_model, reduced_2d_embeddings, pca_2d_model, labels = get_pinecone()
-
+st.write(
+    """
+    This page is where you can enter in an article and it was classify it to the categories in the dataset. It will also display the data in multiple visualizations. 
+    
+    Use the tools in the sidebar to: change how many articls are shown in the top matches.
+    """
+)
 user_article = st.text_area("Enter your article below to classify it:", height=500)
 
 #User can specify how many articles they want outputted from the data set
@@ -126,7 +134,9 @@ if st.session_state.run_classify:
         
         st.markdown("---")       
         st.subheader("Article Lookup")
+
         st.markdown("Here, you can choose to view the specific articles by their IDs from the **Top Matches** result by using the dropdown below")
+
         doc_index = st.selectbox("Select Article ID", article_ids, key="selected_article")
         original_text = df.iloc[int(doc_index)]['text']
         st.text_area("Original Text", value = original_text, height = 500)

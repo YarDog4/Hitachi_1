@@ -17,6 +17,8 @@ st.write(
     """
     This page will show you the steps we took to analyze the data before Tokenizing and Vectorizing.
     Everything shown on this page will show preprocessing techniques we used to reach the main funcitonality of our project.
+    
+    Use the tools in the sidebar to: choose your choice of data directory, change what document is shown in the text cleaning comparison, change how many words are shown in the word frequencies
     """
 )
 
