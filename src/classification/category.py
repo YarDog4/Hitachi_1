@@ -1,5 +1,6 @@
 # Importing the Pinecone library
 import pickle
+import httpx
 from pinecone import Pinecone
 from pinecone import ServerlessSpec
 import pandas as pd
@@ -13,6 +14,8 @@ from dotenv import load_dotenv
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from sklearn.decomposition import PCA
+# from pinecone.core.exceptions import PineconeProtocolError
+
 
 from src.preprocessing.load_label import load_labeled_dataset
 from src.preprocessing.cleaning_data import clean_text
@@ -127,8 +130,29 @@ def process_and_insert_vectors(pc, index_name, data, embeddings, batch_size=100)
     
     for i in range(0, len(vectors), batch_size):
         batch = vectors[i:i + batch_size]
-        index.upsert(vectors=batch, namespace="ns1")
-        print(f"📤 Uploaded batch {i // batch_size + 1}/{(len(vectors) + batch_size - 1) // batch_size}")
+        success = False
+
+        #I used some AI here in attempt to solve my Batch upload problem. Pinecone has limits, so it needs to rest before uploading batches
+        #All batches should be uploaded
+        for attempt in range(5):  # 5 retry attempts
+            try:
+                index.upsert(vectors=batch, namespace="ns1")
+                print(f"📤 Uploaded batch {i // batch_size + 1}/{(len(vectors) + batch_size - 1) // batch_size}")
+                success = True
+                break
+            except httpx.HTTPStatusError as e:
+                wait = 2 ** attempt
+                print(f"❌ HTTP error on batch {i // batch_size + 1}: {e}")
+                print(f"⏳ Retrying in {wait} seconds...")
+                time.sleep(wait)
+            except Exception as e:
+                wait = 2 ** attempt
+                print(f"❌ General error on batch {i // batch_size + 1}: {e}")
+                print(f"⏳ Retrying in {wait} seconds...")
+                time.sleep(wait)
+
+        if not success:
+            print(f"💥 Failed to upload batch {i // batch_size + 1} after multiple attempts.")
 
     print(index.describe_index_stats())
 
@@ -193,6 +217,8 @@ def categorization_pipeline():
     cleaned_csv_path = default_data_directory / "dataset" / "csv" / "cleaned" / "cleaned.csv"
     embeddings_path = default_data_directory / "dataset" / "csv" / "embeddings.npy"
     metadata_path = default_data_directory / "dataset" / "csv" / "metadata.pkl"
+
+    cleaned_csv_path.parent.mkdir(parents=True, exist_ok=True)
 
     if cleaned_csv_path.exists():
         df_clean = pd.read_csv(cleaned_csv_path)

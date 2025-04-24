@@ -6,20 +6,21 @@ import plotly.graph_objects as go
 import numpy as np
 
 def plot_2d_vectors(reduced_embeddings, labels, new_point=None):
-    label_encoder = LabelEncoder()
-    label_ids = label_encoder.fit_transform(labels)
-    categories = label_encoder.classes_
+    # label_encoder = LabelEncoder()
+    # label_ids = label_encoder.fit_transform(labels)
+    # categories = label_encoder.classes_
+    categories = np.unique(labels)
 
     fig = go.Figure()
 
-    for i, category in enumerate(categories):
-        ind = np.where(label_ids == i)[0]
+    for category in categories:
+        ind = np.where(labels == category)[0]
         fig.add_trace(go.Scatter(
             x=reduced_embeddings[ind, 0],
             y=reduced_embeddings[ind, 1],
             mode="markers",
             marker=dict(size=6),
-            name=int(category)
+            name=str(category)
         ))
 
     if new_point is not None:
@@ -43,21 +44,22 @@ def plot_2d_vectors(reduced_embeddings, labels, new_point=None):
     return fig
 
 def plot_3d_vectors(reduced_embeddings, labels, new_point=None):
-    label_encoder = LabelEncoder()
-    label_ids = label_encoder.fit_transform(labels)
-    categories = label_encoder.classes_
+    # label_encoder = LabelEncoder()
+    # label_ids = label_encoder.fit_transform(labels)
+    # categories = label_encoder.classes_
+    categories = np.unique(labels)
 
     fig = go.Figure()
 
-    for i, category in enumerate(categories):
-        ind = np.where(label_ids == i)[0]
+    for category in categories:
+        ind = np.where(labels == category)[0]
         fig.add_trace(go.Scatter3d(
             x=reduced_embeddings[ind, 0],
             y=reduced_embeddings[ind, 1],
             z=reduced_embeddings[ind, 2],
             mode="markers",
             marker=dict(size=4),
-            name=int(category)
+            name=str(category)
         ))
 
     if new_point is not None:
